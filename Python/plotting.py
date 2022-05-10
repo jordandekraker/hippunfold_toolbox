@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D, art3d  # noqa: F401 unused import
 import nibabel as nib
 import copy
+import utils
 
 hippunfolddir = '/home/bic/jordand/graham/scratch/opt/hippunfold'
 
@@ -33,6 +34,8 @@ def set_axes_equal(ax):
     ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
     return ax
 
+
+
 def cdata_vertex_to_face(c,faces):
     '''Interpolates vertex data to the nearest face
     Input
@@ -44,6 +47,8 @@ def cdata_vertex_to_face(c,faces):
         cf[f] = np.mean(c[faces[f]])
     return cf
 
+
+
 def window_cdata(cdata,cutoff=0.05):
     '''Returns upper and lower X percent interval values
     Input
@@ -53,6 +58,8 @@ def window_cdata(cdata,cutoff=0.05):
         return False
     l = np.sort(cdata.flatten())
     return l[[int(cutoff*len(l)), int((1-cutoff)*len(l))]]
+
+
 
 def surfplot_cdata(ax,cdata,f,v,cwindow=False):
     '''create surface in existing axis
@@ -86,22 +93,7 @@ def surfplot_cdata(ax,cdata,f,v,cwindow=False):
     ax.set_axis_off()
     return ax
 
-def surfdat_smooth(F,cdata,iters=1):
-    '''iteratively smooth cdata by averaging with connected neighbours
-    Inputs
-      F: faces
-      cdata: vertex-wise data
-      iters: number of iterations
-TODO: convert to mm vis calibration curves in https://github.com/MELDProject/meld_classifier/blob/9d3d364de86dc207d3a1e5ec11dcab3ef012ebcb/meld_classifier/mesh_tools.py#L17'''
-    cdata_smooth = copy.deepcopy(cdata)
-    for i in range(iters):
-        newV = copy.deepcopy(cdata_smooth)
-        for n in range(len(newV)):
-            f = np.where(F==n)[0]
-            v = np.unique(F[f,:])
-            newV[n] = np.nanmean(cdata_smooth[v])
-        cdata_smooth = copy.deepcopy(newV)
-    return cdata_smooth
+
 
 def plot_gifti(gii,map='fill',window=False,smooth=0):
     ''' plots a gifti structure. 
@@ -118,7 +110,7 @@ def plot_gifti(gii,map='fill',window=False,smooth=0):
         cdata = np.ones(vertices.shape[0])
     # smooth if needed
     if smooth>=1:
-        cdata = surfdat_smooth(faces,cdata,smooth);
+        cdata = utils.surfdat_smooth(faces,cdata,smooth);
     
     fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(36,12), subplot_kw={'projection': "3d"})
     surfplot_cdata(axes,cdata,faces,vertices,window) 
