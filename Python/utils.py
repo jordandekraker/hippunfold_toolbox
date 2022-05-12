@@ -2,13 +2,15 @@ import numpy as np
 import copy
 from joblib import Parallel, delayed
 import warnings
-
+from scipy.interpolate import griddata
+from scipy.interpolate import NearestNDInterpolator
+import nibabel as nib
 
 def avg_neighbours(invar):
     '''Averages vertex-wise data at vertex n with its neighbouring vertices. F, cdat, n should be passed as a tuple (for easier parallel).'''
     F,cdat,n = invar
-    f = np.where(F==n)[0]
-    v = np.unique(F[f,:])
+    frows = np.where(F==n)[0]
+    v = np.unique(F[frows,:])
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         out = np.nanmean(cdat[v])
@@ -57,3 +59,51 @@ def Laplace_solver(faces,init,maxiters=1e4,conv=1e-6,cores=8):
         if c < conv:
             break
     return LP,change
+
+
+
+def fillnanvertices(F,V):
+    '''Fills NaNs by iteratively nanmean nearest neighbours until no NaNs remain. Can be used to fill missing vertices OR missing vertex cdata.'''
+    Vnew = copy.deepcopy(V)
+    while np.isnan(np.sum(Vnew)):
+        # index of vertices containing nan
+        vrows = np.unique(np.where(np.isnan(Vnew))[0])
+        # replace with the nanmean of neighbouring vertices
+        for n in vrows:
+            frows = np.where(F == n)[0]
+            neighbours = np.unique(F[frows,:])
+            Vnew[n] = np.nanmean(Vnew[neighbours], 0)
+    return Vnew
+
+
+
+def density_interp(indensity, outdensity, cdata, method='nearest', resources_dir='/data/mica3/opt/hippunfold/hippunfold/resources'):
+    '''interpolates data from one surface density onto another via unfolded space
+    Inputs:
+      indensity: one of '0p5mm', '1mm', '2mm', or 'unfoldiso
+      outdensity: one of '0p5mm', '1mm', '2mm', or 'unfoldiso
+      cdata: data to be interpolated (same number of vertices, N, as indensity)
+      method: 'nearest', 'linear', or 'cubic'. 
+      resources_dir: path to hippunfold resources folder
+    Outputs: 
+      interp: interpolated data
+      faces: face connectivity from new surface density'''
+    
+    VALID_STATUS = {'0p5mm', '1mm', '2mm', 'unfoldiso'}
+    if indensity not in VALID_STATUS:
+        raise ValueError("results: indensity must be one of %r." % VALID_STATUS)
+    if outdensity not in VALID_STATUS:
+        raise ValueError("results: outdensity must be one of %r." % VALID_STATUS)
+    
+    # load unfolded surfaces for topological matching
+    startsurf = nib.load(f'{resources_dir}/unfold_template_hipp/tpl-avg_space-unfold_den-{indensity}_midthickness.surf.gii')
+    vertices_start = startsurf.get_arrays_from_intent('NIFTI_INTENT_POINTSET')[0].data
+    targetsurf = nib.load(f'{resources_dir}/unfold_template_hipp/tpl-avg_space-unfold_den-{outdensity}_midthickness.surf.gii')
+    vertices_target = targetsurf.get_arrays_from_intent('NIFTI_INTENT_POINTSET')[0].data
+    faces = targetsurf.get_arrays_from_intent('NIFTI_INTENT_TRIANGLE')[0].data
+
+    # interpolate
+    interp = griddata(vertices_start[:,:2], values=cdata, xi=vertices_target[:,:2], method=method)
+    # fill any NaNs
+    interp = fillnanvertices(faces,interp)
+    return interp,faces,vertices_target
