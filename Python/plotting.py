@@ -112,6 +112,54 @@ def plot_gifti(gii,map='fill',window=False,smooth=0):
     if smooth>=1:
         cdata = utils.surfdat_smooth(faces,cdata,smooth);
     
-    fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(36,12), subplot_kw={'projection': "3d"})
-    surfplot_cdata(axes,cdata,faces,vertices,window) 
-    return fig, axes
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(36,12), subplot_kw={'projection': "3d"})
+    surfplot_cdata(ax,cdata,faces,vertices,window) 
+    return fig, ax
+
+
+def surfplot_canonical_foldunfold(ax,cdata,den='0p5mm',resorcesdir='/export03/data/opt/hippunfold/hippunfold/resources',cwindow=False):
+    # cdata order is always in order: Lhipp, Ldg, Rhipp, Rdg
+
+    # load canonical and unfolded surfaces
+    gii = nib.load(f'{resorcesdir}/canonical_surfs/tpl-avg_space-canonical_den-2mm_label-hipp_midthickness.surf.gii')
+    v = gii.get_arrays_from_intent('NIFTI_INTENT_POINTSET')[0].data
+    f = gii.get_arrays_from_intent('NIFTI_INTENT_TRIANGLE')[0].data
+    gii = nib.load(f'{resorcesdir}/canonical_surfs/tpl-avg_space-canonical_den-2mm_label-dentate_midthickness.surf.gii')
+    vdg = gii.get_arrays_from_intent('NIFTI_INTENT_POINTSET')[0].data
+    fdg = gii.get_arrays_from_intent('NIFTI_INTENT_TRIANGLE')[0].data
+    gii = nib.load(f'{resorcesdir}/unfold_template_hipp/tpl-avg_space-unfold_den-2mm_midthickness.surf.gii')
+    vu = gii.get_arrays_from_intent('NIFTI_INTENT_POINTSET')[0].data
+    gii = nib.load(f'{resorcesdir}/unfold_template_dentate/tpl-avg_space-unfold_den-2mm_midthickness.surf.gii')
+    vudg = gii.get_arrays_from_intent('NIFTI_INTENT_POINTSET')[0].data
+
+    # reorient unfolded
+    vu = vu[:,[1,0,2]]
+    vudg = vudg[:,[1,0,2]]
+    # translate unfolded dg
+    vudg = vudg + [22, 0, 0]
+    # translate folded
+    translatx = np.max(vudg[:,0]) - np.min(v[:,0]) + 2
+    translaty = np.mean(vudg[:,1]) - np.mean(v[:,1])
+    v = v + [translatx, translaty, 0]
+    vdg = vdg + [translatx, translaty, 0]
+
+    vall = np.concatenate((v, vdg,        vu,                vudg))
+    fall = np.concatenate((f, fdg+len(v), f+len(v)+len(vdg), fdg+len(v)+len(vdg)+len(vu)))
+
+    vflip = np.ones(vall.shape)
+    vflip[:,0] = -1
+    vallL = vall*vflip
+
+    # R translat
+    translatx = np.max(vallL[:,0]) - np.min(vall[:,0]) + 2
+    vallR = vall + [translatx, 0, 0]
+
+    vLR = np.concatenate((vallL, vallR))
+    fLR = np.concatenate((fall, fall+len(vall)))
+
+    # replicate cdata for unfolded space
+    cdata = np.concatenate((cdata[:int(len(cdata)/2)], cdata[:int(len(cdata)/2)],
+                            cdata[int(len(cdata)/2):], cdata[int(len(cdata)/2):]))
+
+    surfplot_cdata(ax,cdata,fLR,vLR,cwindow)
+    return ax
