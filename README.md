@@ -11,6 +11,7 @@ plot_subject_foldunfold(<HippUnfold_dir>, <subjectID>, 'subfields');
 Matlab:
 
 ```
+git clone https://github.com/jordandekraker/hippunfold_toolbox.git
 addpath(genpath('hippunfold_toolbox_Matlab'))
 ```
 
