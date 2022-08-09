@@ -3,7 +3,10 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import art3d
 import nibabel as nib
 import copy
-from hippunfold_toolbox import utils
+try:
+    from hippunfold_toolbox import utils
+except:
+    import utils
 from pathlib import Path
 
 resourcesdir=str(Path(utils.__file__).parents[1]) + '/resources'
