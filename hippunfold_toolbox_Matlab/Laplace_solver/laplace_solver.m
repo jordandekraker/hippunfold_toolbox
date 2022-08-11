@@ -1,10 +1,11 @@
-function [LP,iter_change] = laplace_solver(fg,source,sink,maxiters,init,sz,neighbourhoodradius)
+function [LP,iter_change] = laplace_solver(fg,source,sink,maxiters,crop,init,sz,neighbourhoodradius)
 % solves Laplace's equation
 %
 % fg: 3D logical OR indices specifying foreground volume
 % source: 3D logical OR indices specifying source volume
 % sink: 3D logical OR indices specifying sink volume
 % maxiters(optional): max finite difference iterations
+% maxiters(optional): crop before finite differences (true/false)
 % init(optional): initialization of fg values (same size as number of fg indices)
 % sz(optional): only necessary if using only indices for all above variables.
 % Otherwise will be determined from size(<any input that is 3D>)
@@ -31,6 +32,12 @@ end
 if length(size(sink)) == 3 %is 3D logical
     sz2 = size(sink);
     sink = find(sink==1);
+end
+if exist('maxiters') ~= 1 %doesnt exists
+    maxiters = 10000;
+end
+if exist('crop') ~= 1 %doesnt exists
+    crop = false;
 end
 if exist('init') == 1 %exists
     if length(size(init)) == 3 %is 3D
@@ -97,30 +104,32 @@ init(isnan(init)) = 0.5; %guess if there are still any nans! (e.g. from init)
 % interative averaging filter with Neumann boundary condition and fixed
 % source/sink values
 
-% crop (by adjusting indices) to save memory as this is compute intensive!
-[x,y,z] = ind2sub(sz,fg);
-xmin = min(x)-neighbourhoodradius; xmax = max(x)+neighbourhoodradius;
-ymin = min(y)-neighbourhoodradius; ymax = max(y)+neighbourhoodradius;
-zmin = min(z)-neighbourhoodradius; zmax = max(z)+neighbourhoodradius;
-cropsz = [xmax-xmin ymax-ymin zmax-zmin];
-x = x-xmin; y = y-ymin; z = z-zmin;
-fg = sub2ind(cropsz,x,y,z);
+if crop
+    % crop (by adjusting indices) to save memory as this is compute intensive!
+    [x,y,z] = ind2sub(sz,fg);
+    xmin = min(x)-neighbourhoodradius; xmax = max(x)+neighbourhoodradius;
+    ymin = min(y)-neighbourhoodradius; ymax = max(y)+neighbourhoodradius;
+    zmin = min(z)-neighbourhoodradius; zmax = max(z)+neighbourhoodradius;
+    cropsz = [xmax-xmin ymax-ymin zmax-zmin];
+    x = x-xmin; y = y-ymin; z = z-zmin;
+    fg = sub2ind(cropsz,x,y,z);
 
-[x,y,z] = ind2sub(sz,source);
-x = x-xmin; y = y-ymin; z = z-zmin;
-source = sub2ind(cropsz,x,y,z);
+    [x,y,z] = ind2sub(sz,source);
+    x = x-xmin; y = y-ymin; z = z-zmin;
+    source = sub2ind(cropsz,x,y,z);
 
-[x,y,z] = ind2sub(sz,sink);
-x = x-xmin; y = y-ymin; z = z-zmin;
-sink = sub2ind(cropsz,x,y,z);
-
+    [x,y,z] = ind2sub(sz,sink);
+    x = x-xmin; y = y-ymin; z = z-zmin;
+    sink = sub2ind(cropsz,x,y,z);
+    sz = cropsz;
+end
 
 % run iters
 try
-    [LP,iter_change] = laplace_iters_mex(fg, source, sink, init, maxiters, cropsz, neighbourhoodradius);
+    [LP,iter_change] = laplace_iters_mex(fg, source, sink, init, maxiters, sz, neighbourhoodradius);
 catch
     warning('mex of laplace_iters failed, using non-mex file instead (slower, but will produce the same results). Retry laplace_iters_mex.prj (using MATLAB Coder) for faster results.');
-    [LP,iter_change] = laplace_iters(fg, source, sink, init, maxiters, cropsz, neighbourhoodradius);
+    [LP,iter_change] = laplace_iters(fg, source, sink, init, maxiters, sz, neighbourhoodradius);
 end
 LP = LP(fg);
 end
