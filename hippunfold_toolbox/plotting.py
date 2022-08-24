@@ -45,10 +45,14 @@ def cdata_vertex_to_face(c,faces):
     Input
       c: vertex data
       faces: face data'''
-    
-    cf = np.zeros(len(faces))
-    for f in range(len(faces)):
-        cf[f] = np.mean(c[faces[f]])
+    if len(c.shape)>1:
+        cf = np.zeros([len(faces),c.shape[1]])
+        for f in range(len(faces)):
+            cf[f,:] = np.mean(c[faces[f],:],axis=0)
+    else:
+        cf = np.zeros(len(faces))
+        for f in range(len(faces)):
+            cf[f] = np.mean(c[faces[f]])
     return cf
 
 
@@ -65,26 +69,33 @@ def window_cdata(cdata,cutoff=0.05):
 
 
 
-def surfplot_cdata(ax,cdata,f,v,cwindow=False):
+def surfplot_cdata(ax,cdat,f,v,cwindow=False,cmap=False):
     '''create surface in existing axis
     Input
       ax: axis (of type subplot_kw={'projection': "3d"})
       cdata: color of surface
       f: faces
       v: vertices
-      window cdata [True,False, or Tuple for custom window]'''
-    cdata = cdata_vertex_to_face(cdata,f)
+      cwindow: whether to narrow the window of cdata [True,False, or Tuple for custom window]
+      cmap: whether to use a custom colormap [Nx3 where N is the number of unique cdat values]'''
+    cdata = cdata_vertex_to_face(cdat,f)
     # make window if needed
     if type(cwindow) == type(True):
         if not cwindow:
             norm = plt.Normalize(np.min(cdata), np.max(cdata)) 
-            colors = plt.cm.viridis(norm(cdata))
         elif cwindow: # use default
             norm = plt.Normalize(window_cdata(cdata)[0],window_cdata(cdata)[1]) 
-            colors = plt.cm.viridis(norm(cdata))
     else: # hard set window
         norm = plt.Normalize(cwindow[0],cwindow[1]) 
+    # set colours if needed
+    if type(cmap) == type(False):
         colors = plt.cm.viridis(norm(cdata))
+    else:
+        colors = np.zeros([len(cdat),cmap.shape[1]])
+        u,i = np.unique(cdat,return_index=True)
+        for ii in range(len(u)):
+            colors[cdat==u[ii],:] = cmap[ii,:]
+        colors = cdata_vertex_to_face(colors,f)
 
     pc = art3d.Poly3DCollection(v[f], facecolors=colors)
     ax.add_collection(pc)
@@ -99,13 +110,14 @@ def surfplot_cdata(ax,cdata,f,v,cwindow=False):
 
 
 
-def plot_gifti(gii,map='fill',window=False,smooth=0):
+def plot_gifti(gii,map='fill',window=False,smooth=0,cmap=False):
     ''' plots a gifti structure. 
     Inputs
       gii: gfiti object as loaded by nibabel
       map: colour data [default all 1s]
       window: percentile to window colour axis around
-      smooth: number of NN vertex smoothing iterations'''
+      smooth: number of NN vertex smoothing iterations
+      cmap: whether to use a custom colormap [Nx3 where N is the number of unique cdat values]'''
     cdata = copy.deepcopy(map) # new variable rather than pointer
     vertices = gii.get_arrays_from_intent('NIFTI_INTENT_POINTSET')[0].data
     faces = gii.get_arrays_from_intent('NIFTI_INTENT_TRIANGLE')[0].data
@@ -114,26 +126,28 @@ def plot_gifti(gii,map='fill',window=False,smooth=0):
         cdata = np.ones(vertices.shape[0])
     # smooth if needed
     if smooth>=1:
-        cdata = utils.surfdat_smooth(faces,cdata,smooth);
+        cdata = utils.surfdat_smooth(faces,cdata,smooth,cmap=False);
     
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(36,12), subplot_kw={'projection': "3d"})
-    surfplot_cdata(ax,cdata,faces,vertices,window) 
+    surfplot_cdata(ax,cdata,faces,vertices,window,cmap) 
     return fig, ax
 
 
-def surfplot_canonical_foldunfold(ax,cdata,den='0p5mm',resorcesdir=resourcesdir,cwindow=False):
-    # cdata order is always in order: Lhipp, Ldg, Rhipp, Rdg
+def surfplot_canonical_foldunfold(ax,cdata,den='2mm',excludeDG=False,resorcesdir=resourcesdir,cwindow=False,cmap=False):
+    '''cdata order is always in order: Lhipp, Ldg, Rhipp, Rdg
+      cwindow: whether to narrow the window of cdata [True,False, or Tuple for custom window]
+      cmap: whether to use a custom colormap [Nx3 where N is the number of unique cdat values]'''
 
     # load canonical and unfolded surfaces
-    gii = nib.load(f'{resorcesdir}/canonical_surfs/tpl-avg_space-canonical_den-2mm_label-hipp_midthickness.surf.gii')
+    gii = nib.load(f'{resorcesdir}/canonical_surfs/tpl-avg_space-canonical_den-{den}_label-hipp_midthickness.surf.gii')
     v = gii.get_arrays_from_intent('NIFTI_INTENT_POINTSET')[0].data
     f = gii.get_arrays_from_intent('NIFTI_INTENT_TRIANGLE')[0].data
-    gii = nib.load(f'{resorcesdir}/canonical_surfs/tpl-avg_space-canonical_den-2mm_label-dentate_midthickness.surf.gii')
+    gii = nib.load(f'{resorcesdir}/canonical_surfs/tpl-avg_space-canonical_den-{den}_label-dentate_midthickness.surf.gii')
     vdg = gii.get_arrays_from_intent('NIFTI_INTENT_POINTSET')[0].data
     fdg = gii.get_arrays_from_intent('NIFTI_INTENT_TRIANGLE')[0].data
-    gii = nib.load(f'{resorcesdir}/unfold_template_hipp/tpl-avg_space-unfold_den-2mm_midthickness.surf.gii')
+    gii = nib.load(f'{resorcesdir}/unfold_template_hipp/tpl-avg_space-unfold_den-{den}_midthickness.surf.gii')
     vu = gii.get_arrays_from_intent('NIFTI_INTENT_POINTSET')[0].data
-    gii = nib.load(f'{resorcesdir}/unfold_template_dentate/tpl-avg_space-unfold_den-2mm_midthickness.surf.gii')
+    gii = nib.load(f'{resorcesdir}/unfold_template_dentate/tpl-avg_space-unfold_den-{den}_midthickness.surf.gii')
     vudg = gii.get_arrays_from_intent('NIFTI_INTENT_POINTSET')[0].data
 
     # reorient unfolded
@@ -149,6 +163,9 @@ def surfplot_canonical_foldunfold(ax,cdata,den='0p5mm',resorcesdir=resourcesdir,
 
     vall = np.concatenate((v, vdg,        vu,                vudg))
     fall = np.concatenate((f, fdg+len(v), f+len(v)+len(vdg), fdg+len(v)+len(vdg)+len(vu)))
+    if excludeDG:
+        vall = np.concatenate((v, vu,))
+        fall = np.concatenate((f, f+len(v)))
 
     vflip = np.ones(vall.shape)
     vflip[:,0] = -1
@@ -165,5 +182,5 @@ def surfplot_canonical_foldunfold(ax,cdata,den='0p5mm',resorcesdir=resourcesdir,
     cdata = np.concatenate((cdata[:int(len(cdata)/2)], cdata[:int(len(cdata)/2)],
                             cdata[int(len(cdata)/2):], cdata[int(len(cdata)/2):]))
 
-    surfplot_cdata(ax,cdata,fLR,vLR,cwindow)
+    surfplot_cdata(ax,cdata,fLR,vLR,cwindow,cmap)
     return ax
