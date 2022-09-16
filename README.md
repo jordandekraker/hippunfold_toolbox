@@ -6,6 +6,10 @@ plot_subject_foldunfold(<HippUnfold_dir>, <subjectID>, 'subfields');
 ```
 ![generated plot!](docs/images/subfields_foldunfold.png)
 
+Plot rsfMRI timeseries over the hippocampus:
+
+![hippo_ts](https://github.com/jordandekraker/hippunfold_toolbox/blob/main/Hippo_ts.gif)
+
 ## Installation
 
 Matlab:
