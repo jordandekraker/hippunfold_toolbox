@@ -8,7 +8,7 @@ plot_subject_foldunfold(<HippUnfold_dir>, <subjectID>, 'subfields');
 
 Plot rsfMRI timeseries over the hippocampus:
 
-![hippo_ts](https://github.com/jordandekraker/hippunfold_toolbox/blob/main/docs/images/Hippo_ts.gif)
+![hippo_ts](docs/images/Hippo_ts.gif)
 
 ## Installation
 
