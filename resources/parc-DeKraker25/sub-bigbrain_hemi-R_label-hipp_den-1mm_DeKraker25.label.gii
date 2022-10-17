@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GIFTI xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="http://brainvis.wustl.edu/caret6/xml_schemas/GIFTI_Caret.xsd"
+       Version="1"
+       NumberOfDataArrays="1">
+   <MetaData>
+      <MD>
+         <Name><![CDATA[AnatomicalStructurePrimary]]></Name>
+         <Value><![CDATA[Invalid]]></Value>
+      </MD>
+      <MD>
+         <Name><![CDATA[ProgramProvenance]]></Name>
+         <Value><![CDATA[Connectome Workbench
+Type: Command Line Application
+Version: 1.4.2
+Qt Compiled Version: 5.7.0
+Qt Runtime Version: 5.7.0
+Commit: 092b7f2f7dfab0f9ea7cbb6c1db2e5dffd2c1045
+Commit Date: 2020-01-07 17:24:23 -0600
+Compiled with OpenMP: YES
+Compiler: g++ (/home/caret/gcc/install/gcc-4.8.5/bin)
+Compiler Version: 4.8.5
+Compiled Debug: NO
+Operating System: Linux
+]]></Value>
+      </MD>
+      <MD>
+         <Name><![CDATA[Provenance]]></Name>
+         <Value><![CDATA[/data/mica1/01_programs/workbench-1.4.2/bin_linux64/../exe_linux64/wb_command -volume-to-surface-mapping sub-bigbrain_hemi-R_label-hipp_space-unfolded_dseg-DeKraker25.nii.gz ../unfold_template_hipp/tpl-avg_space-unfold_den-1mm_midthickness.surf.gii sub-bigbrain_hemi-R_label-hipp_den-1mm_DeKraker25.label.gii -enclosing]]></Value>
+      </MD>
+      <MD>
+         <Name><![CDATA[WorkingDirectory]]></Name>
+         <Value><![CDATA[/export03/data/opt/hippunfold_toolbox/resources/parc-DeKraker25]]></Value>
+      </MD>
+   </MetaData>
+   <LabelTable>
+      <Label Key="0" Red="1" Green="1" Blue="1" Alpha="0"><![CDATA[???]]></Label>
+   </LabelTable>
+<DataArray Intent="NIFTI_INTENT_NORMAL"
+           DataType="NIFTI_TYPE_FLOAT32"
+           ArrayIndexingOrder="RowMajorOrder"
+           Dimensionality="1"
+           Dim0="2004"
+           Encoding="GZipBase64Binary"
+           Endian="LittleEndian"
+           ExternalFileName=""
+           ExternalFileOffset="0">
+   <MetaData>
+      <MD>
+         <Name><![CDATA[Name]]></Name>
+         <Value><![CDATA[ enclosing voxel]]></Value>
+      </MD>
+   </MetaData>
+   <Data>eJzlWLuV2zAQRAkqQSVcB0d04BJUwpXAkCFDhQoVKlSo0GWwFB9krDgczgKQjs/nZwfzAOKz2JndBSmF0L+HcOt+45SxjzM+MtI6W9tHvfaU8RPWe+D9H7Dfs3ESPvI+77y736KvfGG7bAfBuizOFf4aN9QWz0C7bzHbjLM9w6nTerCGJT7nCOd8tqHzgWffcvzRPp+JZ7FmK35wdpfROzhGzZf7xlnFx859i0sfEkrnp7MTsO/xZ3+SL6W8WfiSMTQg+To6bYkD8zBN0V+l5cJ/0JN99/xPMVZ9e+Z5BeP4I6PEGfka5x1wwnjtKRdWOUtxKtWL8VB8OnhOfXweaA5rIiHxRe6GUbQMGz+QHqiVynPVHkDLA+i5J8jaJ+049qgLAueUfqYPaoK6tQI1UjXDGnl3A2rFuuHzLs45qXRT7x/LxVpdmT6LfCLtVmPdXFfWtmqIHLGPGihNsG/g/SrvWLeE+3st+prxPbOqt0o7QR2zTs/qhmuwz/opPVu0VnopWJ6l9gx5o7QxTDAeGnXgfmpDRQu8//qurgdqoupMwb6FOF+wRV24fjxM2e8QZ42wX+IbiHsNng6lsWNFl0d+xOX3yo1yAfWYoEYC9V/hhbmi7hiVD5jvVg+1GjDcvwM/2wvlv/EyPpMAcuOY45ga5xxvuQNbY2c5/cjtdx2zGtjnkfiOYs74jtR6daDuv2e4H6jPsfdy4ByX9yDm7zNQ3FScVZ2rO0LNW9902j2ZE1vhBrpdYli8I0u6KCjeXt3wvDdW2ueNtc6p8T+t/xaxs3ffzeLU1e+FWiz/B3x3/P5WqG8pu1enhtxqvVv/JXBdmmaml9Xkd+lyzH69ErOt/ENd7F2z9Zl2xpa8ttJsrCDtGXJ7efFctGcxt7r9ir2Hrbi8F16111ONhK7M237nK35Tw17s297F/zzi/8IWPmib38NDIYZnmAsFm54fbBu/eV+N9f28OH8PqjO9XKrlq/1eUXOYW55u9j76CjcPrXfjM3eo5VgPvHi+htJZmMO1dXwXeHEo+YIxKuW15YKq11Ku2J4++popDM4dhz6wPpe4XlfikXwJju9pPo1dMzxtcd8A69mWgtkvaWJrr87aq3Mm+3gtwONW29sSxwvp2JIHrbZLWNr/BRUgTis=</Data>
+</DataArray>
+</GIFTI>
