@@ -96,7 +96,7 @@ def surfplot_cdata(ax,cdat,f,v,cwindow=False,cmap=False):
         for ii in range(len(u)):
             colors[cdat==u[ii],:] = cmap[ii,:]
         colors = cdata_vertex_to_face(colors,f)
-
+    
     pc = art3d.Poly3DCollection(v[f], facecolors=colors)
     ax.add_collection(pc)
 
@@ -183,4 +183,19 @@ def surfplot_canonical_foldunfold(ax,cdata,den='2mm',excludeDG=False,resorcesdir
                             cdata[int(len(cdata)/2):], cdata[int(len(cdata)/2):]))
 
     surfplot_cdata(ax,cdata,fLR,vLR,cwindow,cmap)
+    return ax
+
+def highlight_subfields(ax,gii,cdata):
+    vertices = gii.get_arrays_from_intent('NIFTI_INTENT_POINTSET')[0].data
+    faces = gii.get_arrays_from_intent('NIFTI_INTENT_TRIANGLE')[0].data
+    borders = cdata
+    
+    # edges = utils.surfdat_smooth(faces,borders)
+    # edges = np.remainder(edges,1)>0
+    # ax.scatter(vertices[edges,0],vertices[edges,1],vertices[edges,2],color=[0,0,0,1])
+    
+    for i in np.unique(borders):
+        edges = utils.surfdat_smooth(faces,borders==i)
+        edges = np.where(np.logical_and(np.remainder(edges,1)>0, borders==[i-1]))[0]
+        ax.scatter(vertices[edges,0],vertices[edges,1],vertices[edges,2],color=[0,0,0,1])
     return ax
