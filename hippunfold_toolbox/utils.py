@@ -77,7 +77,7 @@ def fillnanvertices(F,V):
 
 
 
-def density_interp(indensity, outdensity, cdata, method='nearest', resources_dir='/data/mica3/opt/hippunfold/hippunfold/resources'):
+def density_interp(indensity, outdensity, cdata, method='linear', resources_dir='/data/mica3/opt/hippunfold/hippunfold/resources'):
     '''interpolates data from one surface density onto another via unfolded space
     Inputs:
       indensity: one of '0p5mm', '1mm', '2mm', or 'unfoldiso
