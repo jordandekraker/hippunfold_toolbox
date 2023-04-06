@@ -77,12 +77,13 @@ def fillnanvertices(F,V):
 
 
 
-def density_interp(indensity, outdensity, cdata, method='linear', resources_dir='/data/mica3/opt/hippunfold/hippunfold/resources'):
+def density_interp(indensity, outdensity, cdata, label='hipp', method='linear', resources_dir='/data/mica3/opt/hippunfold/hippunfold/resources'):
     '''interpolates data from one surface density onto another via unfolded space
     Inputs:
       indensity: one of '0p5mm', '1mm', '2mm', or 'unfoldiso
       outdensity: one of '0p5mm', '1mm', '2mm', or 'unfoldiso
       cdata: data to be interpolated (same number of vertices, N, as indensity)
+      label: 'hipp' or 'dentate'
       method: 'nearest', 'linear', or 'cubic'. 
       resources_dir: path to hippunfold resources folder
     Outputs: 
@@ -96,9 +97,9 @@ def density_interp(indensity, outdensity, cdata, method='linear', resources_dir=
         raise ValueError("results: outdensity must be one of %r." % VALID_STATUS)
     
     # load unfolded surfaces for topological matching
-    startsurf = nib.load(f'{resources_dir}/unfold_template_hipp/tpl-avg_space-unfold_den-{indensity}_midthickness.surf.gii')
+    startsurf = nib.load(f'{resources_dir}/unfold_template_{label}/tpl-avg_space-unfold_den-{indensity}_midthickness.surf.gii')
     vertices_start = startsurf.get_arrays_from_intent('NIFTI_INTENT_POINTSET')[0].data
-    targetsurf = nib.load(f'{resources_dir}/unfold_template_hipp/tpl-avg_space-unfold_den-{outdensity}_midthickness.surf.gii')
+    targetsurf = nib.load(f'{resources_dir}/unfold_template_{label}/tpl-avg_space-unfold_den-{outdensity}_midthickness.surf.gii')
     vertices_target = targetsurf.get_arrays_from_intent('NIFTI_INTENT_POINTSET')[0].data
     faces = targetsurf.get_arrays_from_intent('NIFTI_INTENT_TRIANGLE')[0].data
 
