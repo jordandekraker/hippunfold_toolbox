@@ -161,11 +161,13 @@ def surfplot_canonical_foldunfold(ax,cdata,den='2mm',excludeDG=False,excludeR=Fa
     v = v + [translatx, translaty, 0]
     vdg = vdg + [translatx, translaty, 0]
 
-    vall = np.concatenate((v, vdg,        vu,                vudg))
-    fall = np.concatenate((f, fdg+len(v), f+len(v)+len(vdg), fdg+len(v)+len(vdg)+len(vu)))
     if excludeDG:
         vall = np.concatenate((v, vu,))
         fall = np.concatenate((f, f+len(v)))
+    else:
+        vall = np.concatenate((v, vdg,        vu,                vudg))
+        fall = np.concatenate((f, fdg+len(v), f+len(v)+len(vdg), fdg+len(v)+len(vdg)+len(vu)))
+
 
     vflip = np.ones(vall.shape)
     vflip[:,0] = -1
