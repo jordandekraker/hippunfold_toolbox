@@ -133,7 +133,7 @@ def plot_gifti(gii,map='fill',window=False,smooth=0,cmap=False):
     return fig, ax
 
 
-def surfplot_canonical_foldunfold(ax,cdata,den='2mm',excludeDG=False,resorcesdir=resourcesdir,cwindow=False,cmap=False):
+def surfplot_canonical_foldunfold(ax,cdata,den='2mm',excludeDG=False,excludeR=False,resorcesdir=resourcesdir,cwindow=False,cmap=False):
     '''cdata order is always in order: Lhipp, Ldg, Rhipp, Rdg
       cwindow: whether to narrow the window of cdata [True,False, or Tuple for custom window]
       cmap: whether to use a custom colormap [Nx3 where N is the number of unique cdat values]'''
@@ -171,16 +171,21 @@ def surfplot_canonical_foldunfold(ax,cdata,den='2mm',excludeDG=False,resorcesdir
     vflip[:,0] = -1
     vallL = vall*vflip
 
-    # R translat
-    translatx = np.max(vallL[:,0]) - np.min(vall[:,0]) + 2
-    vallR = vall + [translatx, 0, 0]
+    if excludeR:
+        vLR = vallL
+        fLR = fall
+        cdata = np.concatenate((cdata,cdata))
+    else:
+        # R translat
+        translatx = np.max(vallL[:,0]) - np.min(vall[:,0]) + 2
+        vallR = vall + [translatx, 0, 0]
 
-    vLR = np.concatenate((vallL, vallR))
-    fLR = np.concatenate((fall, fall+len(vall)))
+        vLR = np.concatenate((vallL, vallR))
+        fLR = np.concatenate((fall, fall+len(vall)))
 
-    # replicate cdata for unfolded space
-    cdata = np.concatenate((cdata[:int(len(cdata)/2)], cdata[:int(len(cdata)/2)],
-                            cdata[int(len(cdata)/2):], cdata[int(len(cdata)/2):]))
+        # replicate cdata for unfolded space
+        cdata = np.concatenate((cdata[:int(len(cdata)/2)], cdata[:int(len(cdata)/2)],
+                                cdata[int(len(cdata)/2):], cdata[int(len(cdata)/2):]))
 
     surfplot_cdata(ax,cdata,fLR,vLR,cwindow,cmap)
     return ax
