@@ -12,7 +12,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="hippunfold_toolbox",
-    version="0.1.1",
+    version="0.1.2",
     author="Jordan DeKraker",
     author_email="jordandekraker@gmail.com",
     description="A toolbox for viewing, manipulating, and additional actions on HippUnfold outputs",
@@ -41,7 +41,6 @@ setuptools.setup(
         "joblib",
         "brainspace>=0.1.2",
         "nibabel",
-        "mpl_toolkits",
         "nilearn>=0.7.0",
         "numpy>=1.16.5",
         "pandas>=0.23",

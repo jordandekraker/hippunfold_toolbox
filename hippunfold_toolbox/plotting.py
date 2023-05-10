@@ -133,7 +133,7 @@ def plot_gifti(gii,map='fill',window=False,smooth=0,cmap=False):
     return fig, ax
 
 
-def surfplot_canonical_foldunfold(ax,cdata,den='2mm',excludeDG=False,excludeR=False,resorcesdir=resourcesdir,cwindow=False,cmap=False):
+def surfplot_canonical_foldunfold(ax,cdata,den='2mm',excludeDG=False,excludeR=False,smooth=0,resorcesdir=resourcesdir,cwindow=False,cmap=False):
     '''cdata order is always in order: Lhipp, Ldg, Rhipp, Rdg
       cwindow: whether to narrow the window of cdata [True,False, or Tuple for custom window]
       cmap: whether to use a custom colormap [Nx3 where N is the number of unique cdat values]'''
@@ -188,6 +188,9 @@ def surfplot_canonical_foldunfold(ax,cdata,den='2mm',excludeDG=False,excludeR=Fa
         # replicate cdata for unfolded space
         cdata = np.concatenate((cdata[:int(len(cdata)/2)], cdata[:int(len(cdata)/2)],
                                 cdata[int(len(cdata)/2):], cdata[int(len(cdata)/2):]))
+
+    if smooth >=1:
+        cdata = utils.surfdat_smooth(fLR,cdata,smooth);
 
     surfplot_cdata(ax,cdata,fLR,vLR,cwindow,cmap)
     return ax
