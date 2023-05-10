@@ -17,6 +17,15 @@ def avg_neighbours(invar):
     return out
 
 
+def surf_dist(mask, F):
+    '''Computes distance (in nodes) between a starting mask to all other vertices'''
+    var = mask+0
+    while np.any(var==0):
+        frows = np.unique(np.where(np.isin(F,np.where(var>0)[0]))[0])
+        v = np.unique(F[frows,:])
+        var[v] = var[v] +1
+    return np.max(var) - var
+
 
 def surfdat_smooth(F,cdata,iters=1,cores=8):
     '''Smoothes surface data across neighbouring vertices. This assumes that vertices are evenly spaced and evenly connected.
