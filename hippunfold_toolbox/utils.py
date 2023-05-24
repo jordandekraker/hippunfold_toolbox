@@ -5,6 +5,9 @@ import warnings
 from scipy.interpolate import griddata
 from scipy.interpolate import NearestNDInterpolator
 import nibabel as nib
+from pathlib import Path
+
+resourcesdir=str(Path(__file__).parents[1]) + '/resources'
 
 def avg_neighbours(invar):
     '''Averages vertex-wise data at vertex n with its neighbouring vertices. F, cdat, n should be passed as a tuple (for easier parallel).'''
@@ -86,7 +89,7 @@ def fillnanvertices(F,V):
 
 
 
-def density_interp(indensity, outdensity, cdata, label='hipp', method='linear', resources_dir='/data/mica3/opt/hippunfold/hippunfold/resources'):
+def density_interp(indensity, outdensity, cdata, label='hipp', method='linear', resourcesdir=resourcesdir):
     '''interpolates data from one surface density onto another via unfolded space
     Inputs:
       indensity: one of '0p5mm', '1mm', '2mm', or 'unfoldiso
@@ -94,7 +97,7 @@ def density_interp(indensity, outdensity, cdata, label='hipp', method='linear', 
       cdata: data to be interpolated (same number of vertices, N, as indensity)
       label: 'hipp' or 'dentate'
       method: 'nearest', 'linear', or 'cubic'. 
-      resources_dir: path to hippunfold resources folder
+      resourcesdir: path to hippunfold resources folder
     Outputs: 
       interp: interpolated data
       faces: face connectivity from new surface density'''
@@ -106,9 +109,9 @@ def density_interp(indensity, outdensity, cdata, label='hipp', method='linear', 
         raise ValueError("results: outdensity must be one of %r." % VALID_STATUS)
     
     # load unfolded surfaces for topological matching
-    startsurf = nib.load(f'{resources_dir}/unfold_template_{label}/tpl-avg_space-unfold_den-{indensity}_midthickness.surf.gii')
+    startsurf = nib.load(f'{resourcesdir}/unfold_template_{label}/tpl-avg_space-unfold_den-{indensity}_midthickness.surf.gii')
     vertices_start = startsurf.get_arrays_from_intent('NIFTI_INTENT_POINTSET')[0].data
-    targetsurf = nib.load(f'{resources_dir}/unfold_template_{label}/tpl-avg_space-unfold_den-{outdensity}_midthickness.surf.gii')
+    targetsurf = nib.load(f'{resourcesdir}/unfold_template_{label}/tpl-avg_space-unfold_den-{outdensity}_midthickness.surf.gii')
     vertices_target = targetsurf.get_arrays_from_intent('NIFTI_INTENT_POINTSET')[0].data
     faces = targetsurf.get_arrays_from_intent('NIFTI_INTENT_TRIANGLE')[0].data
 
