@@ -19,15 +19,20 @@ def avg_neighbours(invar):
         out = np.nanmean(cdat[v])
     return out
 
-def window_cdata(cdata,cutoff=0.05):
+def bound_cdata(cdata,cutoff=0.05):
     '''Returns upper and lower X percent interval values
     Input
       cdata: list of values
       cutoff: upper and lower percentile'''
     if not cutoff:
         return False
-    l = np.sort(cdata.flatten())
-    return l[[int(cutoff*len(l)), int((1-cutoff)*len(l))]]
+    shp = cdata.shape
+    c = cdata.flatten()
+    l = np.sort(c[~np.isnan(c)])
+    bounds = l[[int(cutoff*len(l)), int((1-cutoff)*len(l))]]
+    cdata[cdata<bounds[0]] = bounds[0]
+    cdata[cdata>bounds[1]] = bounds[1]
+    return np.reshape(cdata, shp)
 
 def surf_dist(mask, F):
     '''Computes distance (in nodes) between a starting mask to all other vertices'''
