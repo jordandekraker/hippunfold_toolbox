@@ -48,6 +48,7 @@ def surfplot_canonical_foldunfold(cdata, den='0p5mm', excludeDG=False, excludeR=
 
     # get some formatting
     if excludeR: cdata = np.reshape(cdata,[cdata.shape[0],1,-1])
+    if len(cdata.shape)<3: cdata = np.reshape(cdata,[cdata.shape[0],2-excludeR,1])
     if tighten_cwindow>0: 
         for i in range(0,cdata.shape[2]):
             c = cdata[:,:,i]
@@ -55,7 +56,7 @@ def surfplot_canonical_foldunfold(cdata, den='0p5mm', excludeDG=False, excludeR=
             c[c<cwindow[0]] = cwindow[0]
             c[c>cwindow[1]] = cwindow[1]
             cdata[:,:,i] = c
-    size[1] = size[1]*(cdata.shape[2]+1)
+    size[1] = size[1]*(cdata.shape[2])
     surfDict = {"lh":lh, "lu":lu, "rh":rh, "ru": ru}
 
     # loop through F to add cdata features
