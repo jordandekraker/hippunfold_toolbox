@@ -79,12 +79,12 @@ def surfplot_canonical_foldunfold(cdata, den='0p5mm', excludeDG=False, excludeR=
             arrName[i,2] = arrName[i,2].replace('l','r')
             arrName[i,3] = arrName[i,3].replace('l','r')
 
-    p = plot_surf(surfDict,surfList, array_name=arrName, embed_nb=True, size=size, nan_color=(0,0,0,0), **qwargs)
+    p = plot_surf(surfDict,surfList, array_name=arrName, size=size, nan_color=(0,0,0,0), **qwargs)
     return p
 
 
 
-def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, feature, den='den-0p5mm', modality='T1w', tighten_cwindow=True, resourcesdir=resourcesdir, size=[800,200], cmap='viridis', **qwargs):
+def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, feature, excludeDG=False, den='den-0p5mm', modality='T1w', tighten_cwindow=True, rotate=True,  resourcesdir=resourcesdir, size=[800,200], cmap='viridis', **qwargs):
     '''
     Plots subject-specific folded and unfolded surfaces (hipp/dentate; folded/unfolded). 
     
@@ -93,15 +93,27 @@ def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, feature, den='den-0p5mm', 
     feature: can by 'thickness', 'curvature', 'gyrification', 'subfields', or any added data that follows the same naming convention
     kwargs: see hhttps://brainspace.readthedocs.io/en/latest/generated/brainspace.plotting.surface_plotting.plot_surf.html#brainspace.plotting.surface_plotting.plot_surf
     '''
-    if len(ses)>0: uses = '_'+ses
+
+    if len(ses)>0: 
+        uses = '_'+ses 
+    else: 
+        uses = ''
+    if excludeDG:
+        labels=['hipp']
+    else:
+        labels=['hipp','dentate']
+
     # load surfaces
     surf = []
+    n=0
     for hemi in ['L','R']:
         for space in [modality,'unfold']:
-            for label in ['hipp','dentate']:
+            for label in labels:
                 fn1 = f'{hippunfold_dir}/{sub}/{ses}/surf/{sub}{uses}_hemi-{hemi}_space-{space}_{den}_label-{label}_midthickness.surf.gii'
                 try:
                     s = read_surface(fn1)
+                    if n==0:
+                        nptsHipp = s.n_points
                     if space=='unfold':
                         s.Points = s.Points[:,[1,0,2]]
                         if label=='dentate':
@@ -116,16 +128,17 @@ def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, feature, den='den-0p5mm', 
                 except:
                     print(fn1 + ' failed')
             surf.append(s)
+    npts = len(surf[0].Points)
 
     # rotate surfaces to approx coronal-oblique
-    aff = np.loadtxt(f'{resourcesdir}/xfms/corobl-20deg_xfm.txt')
-    npts = len(surf[0].Points)
-    p1 = np.hstack((surf[0].Points, np.ones((npts,1))))
-    p1 = p1 @ aff
-    surf[0].Points = p1[:,:3]
-    p2 = np.hstack((surf[2].Points, np.ones((npts,1))))
-    p2 = p2 @ aff
-    surf[2].Points = p2[:,:3]
+    if rotate:
+        aff = np.loadtxt(f'{resourcesdir}/xfms/corobl-20deg_xfm.txt')
+        p1 = np.hstack((surf[0].Points, np.ones((npts,1))))
+        p1 = p1 @ aff
+        surf[0].Points = p1[:,:3]
+        p2 = np.hstack((surf[2].Points, np.ones((npts,1))))
+        p2 = p2 @ aff
+        surf[2].Points = p2[:,:3]
 
     # load feature data
     ind = [range(nptsHipp), range(nptsHipp,npts)]
@@ -160,6 +173,6 @@ def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, feature, den='den-0p5mm', 
     surf[3].append_array(cdat[:,1], name=f'n', at='point')
     arrName = ['n','n','n','n']
     
-    p = plot_surf(surfDict,surfList, array_name=arrName, embed_nb=True, nan_color=(0,0,0,0), size=size, cmap=cmap, **qwargs)
+    p = plot_surf(surfDict,surfList, array_name=arrName, nan_color=(0,0,0,0), size=size, cmap=cmap, **qwargs)
     return p
 
