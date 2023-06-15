@@ -132,7 +132,11 @@ def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, features, hemis=['L','R'],
     for h,hemi in enumerate(hemis):
         for l,label in enumerate(labels):
             for f,feature in enumerate(features):
-                fn2 = f'{hippunfold_dir}/sub-{sub}/{ses}/surf/sub-{sub}{uses}_hemi-{hemi}_space-{modality}_den-{den}_label-{label}_*{feature}*.*.gii'
+                if feature=='subfields': 
+                    type='label'
+                else:
+                    type='shape'
+                fn2 = f'{hippunfold_dir}/sub-{sub}/{ses}/surf/sub-{sub}{uses}_hemi-{hemi}_space-{modality}_den-{den}_label-{label}_*{feature}*.{type}.gii'
                 fn3 = glob.glob(fn2)
                 try:
                     cdata[ind[l],h,f]= nib.load(fn3[0]).darrays[0].data
