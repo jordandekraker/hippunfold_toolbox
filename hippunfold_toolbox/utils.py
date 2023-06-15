@@ -19,6 +19,7 @@ def avg_neighbours(invar):
         out = np.nanmean(cdat[v])
     return out
 
+
 def bound_cdata(cdata,cutoff=0.05):
     '''Returns upper and lower X percent interval values
     Input
@@ -36,6 +37,7 @@ def bound_cdata(cdata,cutoff=0.05):
     except:
         print('cdata all NaN')
     return np.reshape(cdata, shp)
+
 
 def surf_dist(mask, F):
     '''Computes distance (in nodes) between a starting mask to all other vertices'''
@@ -56,7 +58,6 @@ def surfdat_smooth(F,cdata,iters=1,cores=8):
         cdata_smooth = np.array(cdat)
         cdat = copy.deepcopy(cdata_smooth)
     return cdata_smooth
-
 
 
 def Laplace_solver(faces,init,maxiters=1e4,conv=1e-6,cores=8):
@@ -90,7 +91,6 @@ def Laplace_solver(faces,init,maxiters=1e4,conv=1e-6,cores=8):
     return LP,change
 
 
-
 def fillnanvertices(F,V):
     '''Fills NaNs by iteratively nanmean nearest neighbours until no NaNs remain. Can be used to fill missing vertices OR missing vertex cdata.'''
     Vnew = copy.deepcopy(V)
@@ -103,7 +103,6 @@ def fillnanvertices(F,V):
             neighbours = np.unique(F[frows,:])
             Vnew[n] = np.nanmean(Vnew[neighbours], 0)
     return Vnew
-
 
 
 def density_interp(indensity, outdensity, cdata, label='hipp', method='linear', resourcesdir=resourcesdir):
