@@ -29,9 +29,12 @@ def bound_cdata(cdata,cutoff=0.05):
     shp = cdata.shape
     c = cdata.flatten()
     l = np.sort(c[~np.isnan(c)])
-    bounds = l[[int(cutoff*len(l)), int((1-cutoff)*len(l))]]
-    cdata[cdata<bounds[0]] = bounds[0]
-    cdata[cdata>bounds[1]] = bounds[1]
+    try:
+        bounds = l[[int(cutoff*len(l)), int((1-cutoff)*len(l))]]
+        cdata[cdata<bounds[0]] = bounds[0]
+        cdata[cdata>bounds[1]] = bounds[1]
+    except:
+        print('cdata all NaN')
     return np.reshape(cdata, shp)
 
 def surf_dist(mask, F):
