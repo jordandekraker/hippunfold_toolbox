@@ -6,8 +6,8 @@ In-depth tools are offered in Python, but there are also useful Matlab examples 
 
 ### Example (Individual subject):
 ```
-plotting.surfplot_sub_foldunfold('My_hippunfold_Output_directory/hippunfold', sub='bbhist', ses='',
-        feature=['subfields',], labels=['hipp'], modality='corobl', cmap='tab10', embed_nb=True, )
+plotting.surfplot_sub_foldunfold('hippunfold_output_directory/hippunfold', sub='bbhist', ses='',
+        features=['subfields'], labels=['hipp'], modality='corobl', cmap='tab10')
 ```
 ![individual subject output](docs/images/subject_foldunfold_subfields.png)
 
@@ -20,7 +20,7 @@ all_data = np.load('mydata.pkl')
 # number of hemispheres, S is the number of subjects, and F is a stack of different features.
 
 averaged_data = np.mean(all_data,axis=2)
-plotting.surfplot_canonical_foldunfold(averaged_data, tighten_cwindow=True, embed_nb=True,)
+plotting.surfplot_canonical_foldunfold(averaged_data, tighten_cwindow=True)
 ```
 ![group averaged output](docs/images/average_foldunfold_features.png)
 
