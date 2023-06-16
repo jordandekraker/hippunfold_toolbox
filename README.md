@@ -35,6 +35,7 @@ plot_subject_foldunfold('My_hippunfold_Output_directory/hippunfold', '001', 'sub
 
 ### Tutorials
 The `Notebooks/` directory contains many useful examples of how to load gifti and nifti data as output by HippUnfold (or other software), and combine it with additional data including, for example, mapping of a rsfMRI timeseries:
+
 ![hippo_ts](docs/images/Hippo_ts.gif)
 
 ## Installation
