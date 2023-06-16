@@ -7,7 +7,7 @@ In-depth tools are offered in Python, but there are also useful Matlab examples 
 ### Example (Individual subject):
 ```
 plotting.surfplot_sub_foldunfold('hippunfold_output_directory/hippunfold', sub='bbhist', ses='',
-        features=['subfields'], labels=['hipp'], modality='corobl', cmap='tab10')
+                        features=['subfields'], labels=['hipp'], modality='corobl', cmap='tab10')
 ```
 ![individual subject output](docs/images/subject_foldunfold_subfields.png)
 
