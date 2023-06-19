@@ -34,7 +34,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.9",
     ],
     keywords='hippunfold registration',
-    python_requires=">=3.7.*",
+    python_requires=">=3.7.0",
     install_requires=[
         "Path>=16.4.0",
         "joblib",
