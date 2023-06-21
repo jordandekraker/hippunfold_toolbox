@@ -93,6 +93,7 @@ def Laplace_solver(faces,init,maxiters=1e4,conv=1e-6,cores=8):
 
 def fillnanvertices(F,V):
     '''Fills NaNs by iteratively nanmean nearest neighbours until no NaNs remain. Can be used to fill missing vertices OR missing vertex cdata.'''
+    Vold = copy.deepcopy(V)
     Vnew = copy.deepcopy(V)
     while np.isnan(np.sum(Vnew)):
         # index of vertices containing nan
@@ -102,10 +103,14 @@ def fillnanvertices(F,V):
             frows = np.where(F == n)[0]
             neighbours = np.unique(F[frows,:])
             Vnew[n] = np.nanmean(Vnew[neighbours], 0)
+        if sum(np.isnan(Vold)) == sum(np.isnan(Vnew)): # stop if no changes
+            break
+        else:
+            Vold=Vnew
     return Vnew
 
 
-def density_interp(indensity, outdensity, cdata, label='hipp', method='linear', resourcesdir=resourcesdir):
+def density_interp(indensity, outdensity, cdata, label, method='linear', resourcesdir=resourcesdir):
     '''interpolates data from one surface density onto another via unfolded space
     Inputs:
       indensity: one of '0p5mm', '1mm', '2mm', or 'unfoldiso
