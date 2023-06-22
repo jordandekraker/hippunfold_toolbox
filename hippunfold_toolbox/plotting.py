@@ -74,11 +74,13 @@ def surfplot_canonical_foldunfold(cdata, hemis=['L','R'], labels=['hipp','dentat
     new_size=copy.deepcopy(size)
     new_size[0] = new_size[0]*len(hemis)
     new_size[1] = new_size[1]*cdata.shape[2]
+    if 'color_bar' in qwargs:
+        new_size[0] = new_size[0]+70
     p = plot_surf(surfDict,surfList, array_name=arrName, size=new_size, **new_qwargs)
     return p
 
 
-def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, features, hemis=['L','R'], labels=['hipp','dentate'], den='0p5mm', modality='T1w', tighten_cwindow=True, rotate=True,  resourcesdir=resourcesdir, size=[400,200], cmap='viridis', **qwargs):
+def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, features, hemis=['L','R'], labels=['hipp','dentate'], den='0p5mm', modality='T1w', tighten_cwindow=True, rotate=True,  resourcesdir=resourcesdir, size=[350,230], cmap='viridis', **qwargs):
     '''
     Plots subject-specific folded and unfolded surfaces (hipp/dentate; folded/unfolded). 
     
@@ -178,7 +180,9 @@ def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, features, hemis=['L','R'],
     new_size=copy.deepcopy(size)
     new_size[0] = new_size[0]*len(hemis)
     new_size[1] = new_size[1]*cdata.shape[2]
+    if 'color_bar' in qwargs:
+        new_size[0] = new_size[0]+70
 
-    p = plot_surf(surfDict,surfList, array_name=arrName, nan_color=(0,0,0,0), size=size, cmap=cmaps, **qwargs)
+    p = plot_surf(surfDict,surfList, array_name=arrName, size=new_size, cmap=cmaps, **new_qwargs)
     return p
 
