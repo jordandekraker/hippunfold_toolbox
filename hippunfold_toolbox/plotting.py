@@ -16,7 +16,7 @@ from pathlib import Path
 resourcesdir=str(Path(utils.__file__).parents[1]) + '/resources'
 
 
-def surfplot_canonical_foldunfold(cdata, hemis=['L','R'], labels=['hipp','dentate'], den='0p5mm', tighten_cwindow=False, resourcesdir=resourcesdir, size=[400,200], **qwargs):
+def surfplot_canonical_foldunfold(cdata, hemis=['L','R'], labels=['hipp','dentate'], den='0p5mm', tighten_cwindow=False, resourcesdir=resourcesdir, size=[350,230], **qwargs):
     '''
     Plots canonical folded and unfolded surfaces (hipp/dentate; folded/unfolded). This is good for cdata that isn't specific to one subject (eg. maybe it has been averaged across many subjects).
     
@@ -70,7 +70,9 @@ def surfplot_canonical_foldunfold(cdata, hemis=['L','R'], labels=['hipp','dentat
         for f in range(cdata.shape[2]):
             arrName[f,:] = f'feature{f}'
 
-    p = plot_surf(surfDict,surfList, array_name=arrName, size=size, nan_color=(0,0,0,0), **qwargs)
+    new_qwargs = dict(zoom=1.5, nan_color=(0,0,0,0))
+    new_qwargs.update(qwargs)
+    p = plot_surf(surfDict,surfList, array_name=arrName, size=size, **new_qwargs)
     return p
 
 
