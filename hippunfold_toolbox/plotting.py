@@ -49,8 +49,6 @@ def surfplot_canonical_foldunfold(cdata, hemis=['L','R'], labels=['hipp','dentat
     if tighten_cwindow>0: 
         for i in range(0,cdata.shape[2]):
             cdata[:,:,i] = utils.bound_cdata(cdata[:,:,i])
-    size[0] = size[0]*len(hemis)
-    size[1] = size[1]*cdata.shape[2]
 
     # set up layout
     surfDict = {'Lf':lh, 'Lu':lu, 'Rf':rh, 'Ru':ru}
@@ -69,10 +67,14 @@ def surfplot_canonical_foldunfold(cdata, hemis=['L','R'], labels=['hipp','dentat
                 ru.append_array(cdata[:,h,f], name=f'feature{f}', at='point')
         for f in range(cdata.shape[2]):
             arrName[f,:] = f'feature{f}'
-
+    
+    # extra parameters
     new_qwargs = dict(zoom=1.5, nan_color=(0,0,0,0))
     new_qwargs.update(qwargs)
-    p = plot_surf(surfDict,surfList, array_name=arrName, size=size, **new_qwargs)
+    new_size=copy.deepcopy(size)
+    new_size[0] = new_size[0]*len(hemis)
+    new_size[1] = new_size[1]*cdata.shape[2]
+    p = plot_surf(surfDict,surfList, array_name=arrName, size=new_size, **new_qwargs)
     return p
 
 
@@ -91,8 +93,6 @@ def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, features, hemis=['L','R'],
         uses = '_'+ses 
     else: 
         uses = ''
-    size[0] = size[0]*len(hemis)
-    size[1] = size[1]*len(features)
 
     # load surfaces
     surf = []
@@ -171,6 +171,13 @@ def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, features, hemis=['L','R'],
             surf[h*2].append_array(cdata[:,h,f], name=feature, at='point')
             surf[h*2 +1].append_array(cdata[:,h,f], name=feature, at='point')
             arrName[f,:] = feature
+
+    # extra parameters
+    new_qwargs = dict(zoom=1.5, nan_color=(0,0,0,0))
+    new_qwargs.update(qwargs)
+    new_size=copy.deepcopy(size)
+    new_size[0] = new_size[0]*len(hemis)
+    new_size[1] = new_size[1]*cdata.shape[2]
 
     p = plot_surf(surfDict,surfList, array_name=arrName, nan_color=(0,0,0,0), size=size, cmap=cmaps, **qwargs)
     return p
