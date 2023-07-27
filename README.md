@@ -44,7 +44,7 @@ Python:
 
 ```
 git clone https://github.com/jordandekraker/hippunfold_toolbox.git
-pip install hippunfold_toolbox/
+pip install -e hippunfold_toolbox/
 ```
 
 Matlab:
