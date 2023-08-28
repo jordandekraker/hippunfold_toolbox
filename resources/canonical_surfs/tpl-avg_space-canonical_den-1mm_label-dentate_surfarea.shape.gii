@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GIFTI xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="http://brainvis.wustl.edu/caret6/xml_schemas/GIFTI_Caret.xsd"
+       Version="1"
+       NumberOfDataArrays="1">
+   <MetaData>
+      <MD>
+         <Name><![CDATA[AnatomicalStructurePrimary]]></Name>
+         <Value><![CDATA[Invalid]]></Value>
+      </MD>
+      <MD>
+         <Name><![CDATA[ProgramProvenance]]></Name>
+         <Value><![CDATA[Connectome Workbench
+Type: Command Line Application
+Version: 1.4.2
+Qt Compiled Version: 5.7.0
+Qt Runtime Version: 5.7.0
+Commit: 092b7f2f7dfab0f9ea7cbb6c1db2e5dffd2c1045
+Commit Date: 2020-01-07 17:24:23 -0600
+Compiled with OpenMP: YES
+Compiler: g++ (/home/caret/gcc/install/gcc-4.8.5/bin)
+Compiler Version: 4.8.5
+Compiled Debug: NO
+Operating System: Linux
+]]></Value>
+      </MD>
+      <MD>
+         <Name><![CDATA[Provenance]]></Name>
+         <Value><![CDATA[/data/mica1/01_programs/workbench-1.4.2/bin_linux64/../exe_linux64/wb_command -surface-vertex-areas /export03/data/opt/hippunfold_toolbox/resources/canonical_surfs/tpl-avg_space-canonical_den-1mm_label-dentate_midthickness.surf.gii /export03/data/opt/hippunfold_toolbox/resources/canonical_surfs/tpl-avg_space-canonical_den-1mm_label-dentate_surfarea.shape.gii]]></Value>
+      </MD>
+      <MD>
+         <Name><![CDATA[WorkingDirectory]]></Name>
+         <Value><![CDATA[/export03/data/opt/hippunfold_toolbox/notebooks]]></Value>
+      </MD>
+   </MetaData>
+   <LabelTable>
+      <Label Key="0" Red="1" Green="1" Blue="1" Alpha="0"><![CDATA[???]]></Label>
+   </LabelTable>
+<DataArray Intent="NIFTI_INTENT_NORMAL"
+           DataType="NIFTI_TYPE_FLOAT32"
+           ArrayIndexingOrder="RowMajorOrder"
+           Dimensionality="1"
+           Dim0="449"
+           Encoding="GZipBase64Binary"
+           Endian="LittleEndian"
+           ExternalFileName=""
+           ExternalFileOffset="0">
+   <MetaData>
+      <MD>
+         <Name><![CDATA[Name]]></Name>
+         <Value><![CDATA[vertex areas]]></Value>
+      </MD>
+   </MetaData>
+   <Data>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</Data>
+</DataArray>
+</GIFTI>

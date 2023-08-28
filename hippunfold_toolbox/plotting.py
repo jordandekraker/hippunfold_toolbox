@@ -16,7 +16,7 @@ from pathlib import Path
 resourcesdir=str(Path(utils.__file__).parents[1]) + '/resources'
 
 
-def surfplot_canonical_foldunfold(cdata, hemis=['L','R'], labels=['hipp','dentate'], den='0p5mm', tighten_cwindow=False, resourcesdir=resourcesdir, size=[350,230], **qwargs):
+def surfplot_canonical_foldunfold(cdata, hemis=['L','R'], labels=['hipp','dentate'], unfoldAPrescale=False, den='0p5mm', tighten_cwindow=False, resourcesdir=resourcesdir, size=[350,300], **qwargs):
     '''
     Plots canonical folded and unfolded surfaces (hipp/dentate; folded/unfolded). This is good for cdata that isn't specific to one subject (eg. maybe it has been averaged across many subjects).
     
@@ -25,10 +25,12 @@ def surfplot_canonical_foldunfold(cdata, hemis=['L','R'], labels=['hipp','dentat
     '''
     # load surfaces
     rh = read_surface(f'{resourcesdir}/canonical_surfs/tpl-avg_space-canonical_den-{den}_label-hipp_midthickness.surf.gii')
-    ru = read_surface(f'{resourcesdir}/unfold_template_hipp/tpl-avg_space-unfold_den-{den}_midthickness.surf.gii')
+    ru = read_surface(f'{resourcesdir}/canonical_surfs/tpl-avg_space-unfold_den-{den}_label-hipp_midthickness.surf.gii')
     ru.Points = ru.Points[:,[1,0,2]] # reorient unfolded
+    if unfoldAPrescale: ru.Points = utils.area_rescale(ru.Points,den,'hipp',APaxis=1)
     if len(labels)==2:
-        ud = read_surface(f'{resourcesdir}/unfold_template_dentate/tpl-avg_space-unfold_den-{den}_midthickness.surf.gii')
+        ud = read_surface(f'{resourcesdir}/canonical_surfs/tpl-avg_space-unfold_den-{den}_label-dentate_midthickness.surf.gii')
+        if unfoldAPrescale: ud.Points = utils.area_rescale(ud.Points,den,'dentate',APaxis=1)
         hd = read_surface(f'{resourcesdir}/canonical_surfs/tpl-avg_space-canonical_den-{den}_label-dentate_midthickness.surf.gii')
         ud.Points = ud.Points[:,[1,0,2]] # reorient unfolded
         ud.Points = ud.Points + [22, 0, 0] # translate unfolded dg
@@ -38,6 +40,7 @@ def surfplot_canonical_foldunfold(cdata, hemis=['L','R'], labels=['hipp','dentat
                                     cells=np.concatenate((rh.GetCells2D().copy(), hd.GetCells2D().copy()+npts)))
         ru = mc.build_polydata(np.concatenate((ru.Points.copy(), ud.Points.copy())),
                                 cells=np.concatenate((ru.GetCells2D().copy(), ud.GetCells2D().copy()+npts)))
+    
     # flip to get left hemisphere
     lh = mc.build_polydata(rh.Points.copy(), cells=rh.GetCells2D().copy())
     lh.Points[:,0] = -lh.Points[:,0]
@@ -69,25 +72,25 @@ def surfplot_canonical_foldunfold(cdata, hemis=['L','R'], labels=['hipp','dentat
             arrName[f,:] = f'feature{f}'
     
     # extra parameters
-    new_qwargs = dict(zoom=1.5, nan_color=(0,0,0,0))
+    new_qwargs = dict(zoom=1.7, nan_color=(0,0,0,0))
     new_qwargs.update(qwargs)
     new_size=copy.deepcopy(size)
     new_size[0] = new_size[0]*len(hemis)
     new_size[1] = new_size[1]*cdata.shape[2]
     if 'color_bar' in qwargs:
-        new_size[0] = new_size[0]+70
+        new_size[0] = new_size[0]+60
     p = plot_surf(surfDict,surfList, array_name=arrName, size=new_size, **new_qwargs)
     return p
 
 
-def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, features, hemis=['L','R'], labels=['hipp','dentate'], den='0p5mm', modality='T1w', tighten_cwindow=True, rotate=True,  resourcesdir=resourcesdir, size=[350,230], cmap='viridis', **qwargs):
+def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, features, hemis=['L','R'], labels=['hipp','dentate'], unfoldAPrescale=False, den='0p5mm', modality='T1w', tighten_cwindow=True, rotate=True,  resourcesdir=resourcesdir, size=[350,230], cmap='viridis', **qwargs):
     '''
     Plots subject-specific folded and unfolded surfaces (hipp/dentate; folded/unfolded). 
     
     Inputs are path/filenames (eg. sub='01', ses='01') 
         if ses doesn't exist, simply set it to ''. 
     features: list of strings. Can include 'thickness', 'curvature', 'gyrification', 'subfields', or any added data that follows the same naming convention
-    kwargs: see hhttps://brainspace.readthedocs.io/en/latest/generated/brainspace.plotting.surface_plotting.plot_surf.html#brainspace.plotting.surface_plotting.plot_surf
+    kwargs: see https://brainspace.readthedocs.io/en/latest/generated/brainspace.plotting.surface_plotting.plot_surf.html#brainspace.plotting.surface_plotting.plot_surf
     '''
 
     if len(ses)>0: 
@@ -109,6 +112,7 @@ def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, features, hemis=['L','R'],
                         nptsHipp = s.n_points
                     if space=='unfold':
                         s.Points = s.Points[:,[1,0,2]] # reorient unfold
+                        if unfoldAPrescale: s.Points = utils.area_rescale(s.Points,den,label,APaxis=1)
                         if label=='dentate':
                             s.Points = s.Points + [22,0,0] # translate DG
                     if label=='dentate': # concatenate dentate to hipp

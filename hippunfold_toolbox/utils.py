@@ -6,6 +6,9 @@ from scipy.interpolate import griddata
 from scipy.interpolate import NearestNDInterpolator
 import nibabel as nib
 from pathlib import Path
+from scipy.ndimage.filters import gaussian_filter
+from scipy.interpolate import interp1d
+from numpy.matlib import repmat
 
 resourcesdir=str(Path(__file__).parents[1]) + '/resources'
 
@@ -130,9 +133,9 @@ def density_interp(indensity, outdensity, cdata, label, method='linear', resourc
         raise ValueError("results: outdensity must be one of %r." % VALID_STATUS)
     
     # load unfolded surfaces for topological matching
-    startsurf = nib.load(f'{resourcesdir}/unfold_template_{label}/tpl-avg_space-unfold_den-{indensity}_midthickness.surf.gii')
+    startsurf = nib.load(f'{resourcesdir}/canonical_surfs/tpl-avg_space-unfold_den-{indensity}_label-{label}_midthickness.surf.gii')
     vertices_start = startsurf.get_arrays_from_intent('NIFTI_INTENT_POINTSET')[0].data
-    targetsurf = nib.load(f'{resourcesdir}/unfold_template_{label}/tpl-avg_space-unfold_den-{outdensity}_midthickness.surf.gii')
+    targetsurf = nib.load(f'{resourcesdir}/canonical_surfs/tpl-avg_space-unfold_den-{outdensity}_label-{label}_midthickness.surf.gii')
     vertices_target = targetsurf.get_arrays_from_intent('NIFTI_INTENT_POINTSET')[0].data
     faces = targetsurf.get_arrays_from_intent('NIFTI_INTENT_TRIANGLE')[0].data
 
@@ -141,3 +144,34 @@ def density_interp(indensity, outdensity, cdata, label, method='linear', resourc
     # fill any NaNs
     interp = fillnanvertices(faces,interp)
     return interp,faces,vertices_target
+
+
+def area_rescale(vertices,den,label,APaxis=1):
+    '''Most of the time, in unfolded space the anterior and psoterior are overrepresented. This function compresses these regions proportionally to the surface areas of a cononical example'''
+    w = 126 if label=='hipp' else 30 # width of unfolded space
+    e = 20 # surfarea A-P edges to cut off
+    f=4 # distortion factor
+    s=5 # surf area smoothing (sigma)
+    Pold = vertices[:,APaxis] 
+
+    # compute rescaling from surface areas
+    surfarea = nib.load(f'{resourcesdir}/canonical_surfs/tpl-avg_space-unfold_den-{den}_label-{label}_surfarea.shape.gii').darrays[0].data
+    surfarea,_,_ = density_interp(den, 'unfoldiso', surfarea.flatten(), label)
+    surfarea = np.reshape(surfarea,(w,254))
+    surfarea = gaussian_filter(surfarea,sigma=s)
+    avg_surfarea = np.mean(surfarea,axis=0)
+    rescalefactor = np.diff(avg_surfarea)[e:-e]
+    interpolator = interp1d(np.linspace(0,1,num=len(rescalefactor)),rescalefactor)
+    rescalefactor = interpolator(np.linspace(0,1,num=len(avg_surfarea)))
+    rescalefactor = (rescalefactor)*(np.max(Pold)-np.min(Pold))*f
+    rescalefactor = repmat(rescalefactor,w,1)
+    rescalefactor,_,_ = density_interp('unfoldiso', den, rescalefactor.flatten(), label)
+    
+    Pnew = Pold + rescalefactor
+
+    # rescale back to original bounds
+    Pnew = Pnew - min(Pnew)
+    Pnew = Pnew/max(Pnew)
+    Pnew = Pnew*(max(Pold)-min(Pold)) + min(Pold)
+    vertices[:,APaxis] = Pnew
+    return vertices

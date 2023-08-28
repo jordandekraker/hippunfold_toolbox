@@ -12,11 +12,11 @@
          <Name><![CDATA[ProgramProvenance]]></Name>
          <Value><![CDATA[Connectome Workbench
 Type: Command Line Application
-Version: 1.4.1
+Version: 1.4.2
 Qt Compiled Version: 5.7.0
 Qt Runtime Version: 5.7.0
-Commit: cf0a798c7962b0a94bfbaa294c83fc890dec4895
-Commit Date: 2019-11-04 17:17:06 -0600
+Commit: 092b7f2f7dfab0f9ea7cbb6c1db2e5dffd2c1045
+Commit Date: 2020-01-07 17:24:23 -0600
 Compiled with OpenMP: YES
 Compiler: g++ (/home/caret/gcc/install/gcc-4.8.5/bin)
 Compiler Version: 4.8.5
@@ -26,11 +26,11 @@ Operating System: Linux
       </MD>
       <MD>
          <Name><![CDATA[Provenance]]></Name>
-         <Value><![CDATA[/srv/software/workbench/bin_linux64/../exe_linux64/wb_command -surface-vertex-areas unfold_template_dentate/tpl-avg_space-unfold_den-2mm_midthickness.surf.gii unfold_template_dentate/tpl-avg_space-unfold_den-2mm_surfarea.shape.gii]]></Value>
+         <Value><![CDATA[/data/mica1/01_programs/workbench-1.4.2/bin_linux64/../exe_linux64/wb_command -surface-vertex-areas /export03/data/opt/hippunfold_toolbox/resources/canonical_surfs/tpl-avg_space-canonical_den-2mm_label-dentate_midthickness.surf.gii /export03/data/opt/hippunfold_toolbox/resources/canonical_surfs/tpl-avg_space-canonical_den-2mm_label-dentate_surfarea.shape.gii]]></Value>
       </MD>
       <MD>
          <Name><![CDATA[WorkingDirectory]]></Name>
-         <Value><![CDATA[/localscratch/hippunfold/gen_unfold_template]]></Value>
+         <Value><![CDATA[/export03/data/opt/hippunfold_toolbox/notebooks]]></Value>
       </MD>
    </MetaData>
    <LabelTable>
@@ -51,6 +51,6 @@ Operating System: Linux
          <Value><![CDATA[vertex areas]]></Value>
       </MD>
    </MetaData>
-   <Data>eJwBAAH//hh6iEADj+lAjMJOP9DBfj/2S2BA3HXTQHoegD+vX5E/bK6rQG90ikBzJQlAfkHdPxV6CEBE2hhA1UEQPynZTz/JBwhAzqMZQJbnYUCq1p1AVSUmQADXAkGP+oNA5IOtQFUlJkDEvds/4XpqQHN0CkD22Os/3r6BQENY/D/4TgNAAHmyQHZVM0C4VxlAADj5PzRwbD9Zg4Y//Yl2P1hmyT8GQgBA4YHiP635TD/DA6U//H0VP1FJgEBA2tA+rNYpP4DHQj8f8Aw/gVXmPiTb+j4EYJI+vvt0PpJujD7vQd49XVttPh0ahj0+P549Uyp9PoKdeD1C5Sw9NsuWPRdeST4BE2x+</Data>
+   <Data>eJwBAAH//v2kyj+b20JAj7bMPzErEz9G05JAAN1CQKkSrj63Gbc/ygUZQB9g10C5JpI//liIPwfcTj+tNGU/C+srPrkAkT92BHNAUr+TQKWiJUBiFlNAYpoaQNTMtkDMNTBArnJlQNA67D/xEJY/A0ooQBjJrz+QM8I/0oV6QANGeEB0uxdADuXPQAFf3UCCFUNA90SAP3p4BECnftU/0fYUPw7TgT9iBdQ/lomPQC00i0AAfQNA3G0tQMJphkCU1TE/PFJUP9IvyD/IgQRAwveyPxwqmz9KnsI/DlftPohm4D9opcY/Z06zP7Lwvz2oPRQ/hX8rQGrKLj83mhs/y2NtP/j0VT9xyWtQ</Data>
 </DataArray>
 </GIFTI>

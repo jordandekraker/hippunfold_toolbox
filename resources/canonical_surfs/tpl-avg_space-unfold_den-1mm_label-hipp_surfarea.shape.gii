@@ -12,25 +12,25 @@
          <Name><![CDATA[ProgramProvenance]]></Name>
          <Value><![CDATA[Connectome Workbench
 Type: Command Line Application
-Version: 1.4.1
-Qt Compiled Version: 5.7.1
-Qt Runtime Version: 5.7.1
-Commit: unknown
-Commit Date: unknown
+Version: 1.4.2
+Qt Compiled Version: 5.7.0
+Qt Runtime Version: 5.7.0
+Commit: 092b7f2f7dfab0f9ea7cbb6c1db2e5dffd2c1045
+Commit Date: 2020-01-07 17:24:23 -0600
 Compiled with OpenMP: YES
-Compiler: c++ (/usr/bin)
-Compiler Version: 6.3.0
+Compiler: g++ (/home/caret/gcc/install/gcc-4.8.5/bin)
+Compiler Version: 4.8.5
 Compiled Debug: NO
 Operating System: Linux
 ]]></Value>
       </MD>
       <MD>
          <Name><![CDATA[Provenance]]></Name>
-         <Value><![CDATA[/usr/bin/wb_command -surface-vertex-areas tpl-avg_space-unfold_den-2k_midthickness.surf.gii tpl-avg_space-unfold_den-2k_midthickness.surf.gii.surfarea.shape.gii]]></Value>
+         <Value><![CDATA[/data/mica1/01_programs/workbench-1.4.2/bin_linux64/../exe_linux64/wb_command -surface-vertex-areas /export03/data/opt/hippunfold_toolbox/resources/canonical_surfs/tpl-avg_space-unfold_den-1mm_label-hipp_midthickness.surf.gii /export03/data/opt/hippunfold_toolbox/resources/canonical_surfs/tpl-avg_space-unfold_den-1mm_label-hipp_surfarea.shape.gii]]></Value>
       </MD>
       <MD>
          <Name><![CDATA[WorkingDirectory]]></Name>
-         <Value><![CDATA[/scratch/akhanf/1_dev/hippunfold_v0.5.4/hippunfold/resources/unfold_template]]></Value>
+         <Value><![CDATA[/export03/data/opt/hippunfold_toolbox/notebooks]]></Value>
       </MD>
    </MetaData>
    <LabelTable>
