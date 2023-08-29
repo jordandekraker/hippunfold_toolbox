@@ -157,22 +157,16 @@ def area_rescale(vertices,den,label,APaxis=1):
     surfarea,_,_ = density_interp(den, 'unfoldiso', surfarea.flatten(), label)
     surfarea = np.reshape(surfarea,(w,254))
     surfarea = gaussian_filter(surfarea,sigma=s)
+
     avg_surfarea = np.mean(surfarea,axis=0)
     rescalefactor = np.cumsum(1/avg_surfarea)
     rescalefactor = rescalefactor - np.min(rescalefactor)
     rescalefactor = rescalefactor/np.max(rescalefactor)
     rescalefactor = rescalefactor+1 - np.linspace(0,1,len(rescalefactor))
 
-
-
     rescalefactor = repmat(rescalefactor,w,1)
     rescalefactor,_,_ = density_interp('unfoldiso', den, rescalefactor.flatten(), label)
     
     Pnew = Pold * rescalefactor
-
-    # rescale back to original bounds
-    Pnew = Pnew - min(Pnew)
-    Pnew = Pnew/max(Pnew)
-    Pnew = Pnew*(max(Pold)-min(Pold)) + min(Pold)
     vertices[:,APaxis] = Pnew
     return vertices
