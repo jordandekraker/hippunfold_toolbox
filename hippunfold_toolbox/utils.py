@@ -149,9 +149,7 @@ def density_interp(indensity, outdensity, cdata, label, method='linear', resourc
 def area_rescale(vertices,den,label,APaxis=1):
     '''Most of the time, in unfolded space the anterior and psoterior are overrepresented. This function compresses these regions proportionally to the surface areas of a cononical example'''
     w = 126 if label=='hipp' else 30 # width of unfolded space
-    e = 20 # surfarea A-P edges to cut off
-    f=4 # distortion factor
-    s=5 # surf area smoothing (sigma)
+    s=15 # surf area smoothing (sigma)
     Pold = vertices[:,APaxis] 
 
     # compute rescaling from surface areas
@@ -160,14 +158,17 @@ def area_rescale(vertices,den,label,APaxis=1):
     surfarea = np.reshape(surfarea,(w,254))
     surfarea = gaussian_filter(surfarea,sigma=s)
     avg_surfarea = np.mean(surfarea,axis=0)
-    rescalefactor = np.diff(avg_surfarea)[e:-e]
-    interpolator = interp1d(np.linspace(0,1,num=len(rescalefactor)),rescalefactor)
-    rescalefactor = interpolator(np.linspace(0,1,num=len(avg_surfarea)))
-    rescalefactor = (rescalefactor)*(np.max(Pold)-np.min(Pold))*f
+    rescalefactor = np.cumsum(1/avg_surfarea)
+    rescalefactor = rescalefactor - np.min(rescalefactor)
+    rescalefactor = rescalefactor/np.max(rescalefactor)
+    rescalefactor = rescalefactor+1 - np.linspace(0,1,len(rescalefactor))
+
+
+
     rescalefactor = repmat(rescalefactor,w,1)
     rescalefactor,_,_ = density_interp('unfoldiso', den, rescalefactor.flatten(), label)
     
-    Pnew = Pold + rescalefactor
+    Pnew = Pold * rescalefactor
 
     # rescale back to original bounds
     Pnew = Pnew - min(Pnew)

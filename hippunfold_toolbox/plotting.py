@@ -30,10 +30,10 @@ def surfplot_canonical_foldunfold(cdata, hemis=['L','R'], labels=['hipp','dentat
     if unfoldAPrescale: ru.Points = utils.area_rescale(ru.Points,den,'hipp',APaxis=1)
     if len(labels)==2:
         ud = read_surface(f'{resourcesdir}/canonical_surfs/tpl-avg_space-unfold_den-{den}_label-dentate_midthickness.surf.gii')
-        if unfoldAPrescale: ud.Points = utils.area_rescale(ud.Points,den,'dentate',APaxis=1)
         hd = read_surface(f'{resourcesdir}/canonical_surfs/tpl-avg_space-canonical_den-{den}_label-dentate_midthickness.surf.gii')
         ud.Points = ud.Points[:,[1,0,2]] # reorient unfolded
         ud.Points = ud.Points + [22, 0, 0] # translate unfolded dg
+        if unfoldAPrescale: ud.Points = utils.area_rescale(ud.Points,den,'dentate',APaxis=1)
         # add to original
         npts = rh.n_points
         rh = mc.build_polydata(np.concatenate((rh.Points.copy(), hd.Points.copy())),
