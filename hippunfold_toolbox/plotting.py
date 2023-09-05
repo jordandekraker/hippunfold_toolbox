@@ -49,6 +49,7 @@ def surfplot_canonical_foldunfold(cdata, hemis=['L','R'], labels=['hipp','dentat
 
     # do some cdata formatting
     cdata = np.reshape(cdata,[cdata.shape[0],len(hemis),-1])
+    if len(cdata.shape) == 2: cdata = np.expand_dims(t,axis=2)
     if tighten_cwindow>0: 
         for i in range(0,cdata.shape[2]):
             cdata[:,:,i] = utils.bound_cdata(cdata[:,:,i])
