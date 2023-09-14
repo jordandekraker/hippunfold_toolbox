@@ -8,6 +8,7 @@ import nibabel as nib
 from pathlib import Path
 from scipy.ndimage.filters import gaussian_filter
 from scipy.interpolate import interp1d
+from scipy.interpolate import interpn
 from numpy.matlib import repmat
 
 resourcesdir=str(Path(__file__).parents[1]) + '/resources'
@@ -170,3 +171,50 @@ def area_rescale(vertices,den,label,APaxis=1):
     Pnew = Pold * rescalefactor
     vertices[:,APaxis] = Pnew
     return vertices
+
+
+def surface_to_volume(surf_data, out_name, indensity, hippunfold_dir, sub, ses, hemi, space, label='hipp', method='nearest'):
+    # from https://github.com/khanlab/hippunfold/blob/master/hippunfold/workflow/scripts/label_subfields_from_vol_coords.py
+
+    # this function labels subfields using the labels in unfolded space, and native space coords (ap, pd) images
+
+    if len(ses)>0: 
+        ses = 'ses-'+ses
+        uses = '_'+ses 
+    else: 
+        uses = ''
+
+    nii_ap = f'{hippunfold_dir}/sub-{sub}/{ses}/coords/sub-{sub}{uses}_dir-AP_hemi-{hemi}_space-{space}_label-{label}_desc-laplace_coords.nii.gz'
+    nii_pd = f'{hippunfold_dir}/sub-{sub}/{ses}/coords/sub-{sub}{uses}_dir-PD_hemi-{hemi}_space-{space}_label-{label}_desc-laplace_coords.nii.gz'
+
+    # get labels from volumetric unfolded labels
+    if indensity != 'unfildiso':
+        surf_data_unfoldiso,_,_ = density_interp(indensity,'unfoldiso',surf_data, label, method=method)
+    surf_data_unfoldiso = surf_data_unfoldiso.reshape(126,254).T
+
+    # setup the interpolating grid
+    spacing_ap = np.linspace(0, 1, surf_data_unfoldiso.shape[0])
+    spacing_pd = np.linspace(0, 1, surf_data_unfoldiso.shape[1])
+    points = (spacing_ap, spacing_pd)
+
+    # load up the coords
+    ap_nib = nib.load(nii_ap)
+    pd_nib = nib.load(nii_pd)
+    ap_img = ap_nib.get_fdata()
+    pd_img = pd_nib.get_fdata()
+
+    # get mask of coords
+    mask = np.logical_or(ap_img > 0, pd_img > 0)
+
+    # interpolate
+    query_points = np.vstack((ap_img[mask], pd_img[mask])).T
+    labelled_points = interpn(points, surf_data_unfoldiso, query_points, method=method)
+
+    # put back into image
+    label_img = np.zeros(ap_img.shape, dtype="uint16")
+    label_img[mask] = labelled_points
+
+    # save label img
+    label_nib = nib.Nifti1Image(label_img, ap_nib.affine, ap_nib.header)
+    nib.save(label_nib, out_name)
+    return label_img
