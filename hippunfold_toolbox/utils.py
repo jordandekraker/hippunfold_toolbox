@@ -187,6 +187,7 @@ def surface_to_volume(surf_data, indensity, hippunfold_dir, sub, ses, hemi, spac
 
     nii_ap = glob.glob(f'{hippunfold_dir}/sub-{sub}/{ses}/coords/sub-{sub}{uses}_dir-AP_hemi-{hemi}_space-{space}_label-{label}_desc-laplace_coords.nii.gz')[0]
     nii_pd = glob.glob(f'{hippunfold_dir}/sub-{sub}/{ses}/coords/sub-{sub}{uses}_dir-PD_hemi-{hemi}_space-{space}_label-{label}_desc-laplace_coords.nii.gz')[0]
+    nii_mask = glob.glob(f'{hippunfold_dir}/sub-{sub}/{ses}/anat/sub-{sub}{uses}_hemi-{hemi}_space-{space}_*_dseg.nii.gz')[0]
 
     # resample surface data into APxPD shape
     if indensity != 'unfildiso':
@@ -205,7 +206,14 @@ def surface_to_volume(surf_data, indensity, hippunfold_dir, sub, ses, hemi, spac
     pd_img = pd_nib.get_fdata()
 
     # get mask of coords
-    mask = np.logical_or(ap_img > 0, pd_img > 0)
+    mask_nib = nib.load(nii_mask)
+    mask_img = mask_nib.get_fdata()
+    if label=='hipp':
+        mask = np.logical_and(mask_img > 0, mask_img < 6)
+    elif label=='dentate':
+        mask = mask_img==6
+    else:
+        mask = mask_img>0
 
     # interpolate
     query_points = np.vstack((ap_img[mask], pd_img[mask])).T
