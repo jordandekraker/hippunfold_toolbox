@@ -173,10 +173,11 @@ def area_rescale(vertices,den,label,APaxis=1):
     return vertices
 
 
-def surface_to_volume(surf_data, out_name, indensity, hippunfold_dir, sub, ses, hemi, space, label='hipp', method='nearest'):
+def surface_to_volume(surf_data, indensity, hippunfold_dir, sub, ses, hemi, space='*', label='hipp', save_out_name=None, method='nearest'):
     # from https://github.com/khanlab/hippunfold/blob/master/hippunfold/workflow/scripts/label_subfields_from_vol_coords.py
 
-    # this function labels subfields using the labels in unfolded space, and native space coords (ap, pd) images
+    # this function labels voxels using data on a folded/unfolded surface (midthickness or any), and native space coords (ap, pd) images
+    # TODO: consider trying to simplify inputs specifying the coords paths?
 
     if len(ses)>0: 
         ses = 'ses-'+ses
@@ -184,10 +185,10 @@ def surface_to_volume(surf_data, out_name, indensity, hippunfold_dir, sub, ses, 
     else: 
         uses = ''
 
-    nii_ap = f'{hippunfold_dir}/sub-{sub}/{ses}/coords/sub-{sub}{uses}_dir-AP_hemi-{hemi}_space-{space}_label-{label}_desc-laplace_coords.nii.gz'
-    nii_pd = f'{hippunfold_dir}/sub-{sub}/{ses}/coords/sub-{sub}{uses}_dir-PD_hemi-{hemi}_space-{space}_label-{label}_desc-laplace_coords.nii.gz'
+    nii_ap = glob.glob(f'{hippunfold_dir}/sub-{sub}/{ses}/coords/sub-{sub}{uses}_dir-AP_hemi-{hemi}_space-{space}_label-{label}_desc-laplace_coords.nii.gz')[0]
+    nii_pd = glob.glob(f'{hippunfold_dir}/sub-{sub}/{ses}/coords/sub-{sub}{uses}_dir-PD_hemi-{hemi}_space-{space}_label-{label}_desc-laplace_coords.nii.gz')[0]
 
-    # get labels from volumetric unfolded labels
+    # resample surface data into APxPD shape
     if indensity != 'unfildiso':
         surf_data_unfoldiso,_,_ = density_interp(indensity,'unfoldiso',surf_data, label, method=method)
     surf_data_unfoldiso = surf_data_unfoldiso.reshape(126,254).T
@@ -213,8 +214,9 @@ def surface_to_volume(surf_data, out_name, indensity, hippunfold_dir, sub, ses, 
     # put back into image
     label_img = np.zeros(ap_img.shape, dtype="uint16")
     label_img[mask] = labelled_points
-
-    # save label img
-    label_nib = nib.Nifti1Image(label_img, ap_nib.affine, ap_nib.header)
-    nib.save(label_nib, out_name)
+    
+    if save_out_name:
+        # save label img
+        label_nib = nib.Nifti1Image(label_img, ap_nib.affine, ap_nib.header)
+        nib.save(label_nib, save_out_name)
     return label_img
