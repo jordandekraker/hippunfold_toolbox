@@ -195,8 +195,8 @@ def surface_to_volume(surf_data, indensity, hippunfold_dir, sub, ses, hemi, spac
     surf_data_unfoldiso = surf_data_unfoldiso.reshape(126,254).T
 
     # setup the interpolating grid
-    spacing_ap = np.linspace(0, 1, surf_data_unfoldiso.shape[0])
-    spacing_pd = np.linspace(0, 1, surf_data_unfoldiso.shape[1])
+    spacing_ap = np.linspace(0, 1, 256)[1:-1]
+    spacing_pd = np.linspace(0, 1, 128)[1:-1]
     points = (spacing_ap, spacing_pd)
 
     # load up the coords
