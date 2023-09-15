@@ -1,4 +1,6 @@
 import numpy as np
+import glob
+import os
 import copy
 from joblib import Parallel, delayed
 import warnings
@@ -190,13 +192,33 @@ def surface_to_volume(surf_data, indensity, hippunfold_dir, sub, ses, hemi, spac
     nii_mask = glob.glob(f'{hippunfold_dir}/sub-{sub}/{ses}/anat/sub-{sub}{uses}_hemi-{hemi}_space-{space}_*_dseg.nii.gz')[0]
 
     # resample surface data into APxPD shape
+    surf_data[np.isnan(surf_data)] = -999
     if indensity != 'unfildiso':
         surf_data_unfoldiso,_,_ = density_interp(indensity,'unfoldiso',surf_data, label, method=method)
     surf_data_unfoldiso = surf_data_unfoldiso.reshape(126,254).T
+    surf_data_unfoldiso[surf_data_unfoldiso==-999] = np.nan
+
+    # undo unfolded space warp
+    warp = glob.glob(f'{hippunfold_dir}/../work/sub-{sub}/{ses}/warps/sub-{sub}{uses}_hemi-{hemi}_space-unfold_desc-SyN_from-*_to-subject_type-itk_xfm.nii.gz')
+    if not warp: raise Warning("No unfolded space warp found. It may be that your HippUnfold output work dir is tarred, or you ran hippunfold without unfolded space registration. Proceeding without unfolded space registration")
+    try:
+        t = nib.load(warp[0])
+        tmp_nib = nib.Nifti1Image(surf_data_unfoldiso, t.affine)
+        nib.save(tmp_nib, "tmp.nii.gz")
+        if method=="nearest": 
+            meth = "NearestNeighbor" 
+        elif method=="linear": 
+            meth="Linear"
+        t = os.system(f"antsApplyTransforms -i tmp.nii.gz -r tmp.nii.gz -o tmpWarped.nii.gz -t {warp[0]} -n {meth}")
+        if t!=0: raise Error("ANTs not found")
+        surf_data_unfoldiso = nib.load("tmpWarped.nii.gz").get_fdata()[:,:,0]
+        os.system("rm tmp.nii.gz tmpWarped.nii.gz")
+    except:
+        raise Warning("error in unfolded space registration")
 
     # setup the interpolating grid
-    spacing_ap = np.linspace(0, 1, 256)[1:-1]
-    spacing_pd = np.linspace(0, 1, 128)[1:-1]
+    spacing_ap = np.linspace(0, 1, 254)
+    spacing_pd = np.linspace(0, 1, 126)
     points = (spacing_ap, spacing_pd)
 
     # load up the coords
@@ -221,7 +243,7 @@ def surface_to_volume(surf_data, indensity, hippunfold_dir, sub, ses, hemi, spac
 
     # put back into image
     label_img = np.zeros(ap_img.shape, dtype="uint16")
-    label_img[mask] = labelled_points
+    label_img[mask==1] = labelled_points
     
     if save_out_name:
         # save label img
