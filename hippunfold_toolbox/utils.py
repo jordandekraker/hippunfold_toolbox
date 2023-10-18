@@ -12,6 +12,8 @@ from scipy.ndimage.filters import gaussian_filter
 from scipy.interpolate import interp1d
 from scipy.interpolate import interpn
 from numpy.matlib import repmat
+import pygeodesic.geodesic as geodesic
+
 
 resourcesdir=str(Path(__file__).parents[1]) + '/resources'
 
@@ -25,37 +27,7 @@ def avg_neighbours(invar):
         out = np.nanmean(cdat[v])
     return out
 
-
-def bound_cdata(cdata,cutoff=0.05):
-    '''Returns upper and lower X percent interval values
-    Input
-      cdata: list of values
-      cutoff: upper and lower percentile'''
-    if not cutoff:
-        return False
-    shp = cdata.shape
-    c = cdata.flatten()
-    l = np.sort(c[~np.isnan(c)])
-    try:
-        bounds = l[[int(cutoff*len(l)), int((1-cutoff)*len(l))]]
-        cdata[cdata<bounds[0]] = bounds[0]
-        cdata[cdata>bounds[1]] = bounds[1]
-    except:
-        print('cdata all NaN')
-    return np.reshape(cdata, shp)
-
-
-def surf_dist(mask, F):
-    '''Computes distance (in nodes) between a starting mask to all other vertices'''
-    var = mask+0
-    while np.any(var==0):
-        frows = np.unique(np.where(np.isin(F,np.where(var>0)[0]))[0])
-        v = np.unique(F[frows,:])
-        var[v] = var[v] +1
-    return np.max(var) - var
-
-
-def surfdat_smooth(F,cdata,iters=1,cores=8):
+def surfdat_smooth(F, cdata, iters=1, cores=8):
     '''Smoothes surface data across neighbouring vertices. This assumes that vertices are evenly spaced and evenly connected.
     TODO: convert to mm vis calibration curves in https://github.com/MELDProject/meld_classifier/blob/9d3d364de86dc207d3a1e5ec11dcab3ef012ebcb/meld_classifier/mesh_tools.py#L17'''
     cdat = copy.deepcopy(cdata)
@@ -65,6 +37,49 @@ def surfdat_smooth(F,cdata,iters=1,cores=8):
         cdat = copy.deepcopy(cdata_smooth)
     return cdata_smooth
 
+
+def profile_align(P,V,F, patchdist=None, maxroll=5, cores=8):
+    '''Aligns microstructural profiles in the depth direction across a set of surfaces.
+    inputs:
+      P: a VxD matrix of intensities (vertices x depths)
+      V: the midthickness surface vertices
+      F: the midthickness surface faces
+      patchdist: radius (in mm) of geodesic distance to compute the average profile. If None then all profiles are used
+      maxroll: maximum shift
+      cores: max cores for parallel (if using patch-wise)
+    Outputs:
+      Paligned: a matrix the same size as P
+    pads profiles by maxroll, then rolls them by +/- maxroll until maximum overlap with the patch average is achieved'''
+    P = np.pad(P,((0,0),(maxroll,maxroll)),mode='edge')
+    Paligned = np.ones(P.shape)*np.nan
+    geoalg = geodesic.PyGeodesicAlgorithmExact(V, F)
+
+    if patchdist==None:
+        p_mean = np.nanmean(P,axis=0)
+        # get R for all rolls
+        rolls = np.arange(-maxroll,maxroll+1)
+        R = np.zeros((len(P),len(rolls)))
+        for o,offset in enumerate(rolls):
+            p_mean_off = np.reshape(np.roll(p_mean,offset),(1,len(p_mean)))
+            R[:,o] = np.corrcoef(p_mean_off,P)[1:,0]
+        Rbest = np.argmax(R,axis=1)
+        # keep only the best roll
+        for v in range(len(V)):
+            Paligned[v,:] = np.roll(P[v,:],-rolls[Rbest[v]])
+    else:
+        for v in range(len(V)):
+            # use a patch around the given vertex as the averaged reference
+            dist,_ = geoalg.geodesicDistances(np.array([v]), None)
+            p_mean = np.nanmean(P[dist<patchdist,:],axis=0)
+            rolls = np.arange(-maxroll,maxroll+1)
+            R = np.zeros((len(rolls)))
+            for o,offset in enumerate(rolls):
+                p_mean_off = np.reshape(np.roll(p_mean,offset),(1,len(p_mean)))
+                R[o] = np.corrcoef(p_mean_off,P[v,:])[0,1]
+            Rbest = np.argmax(R)
+            Paligned[v,:] = np.roll(P[v,:],-rolls[Rbest])
+    return Paligned[:,maxroll:-maxroll]
+      
 
 def Laplace_solver(faces,init,maxiters=1e4,conv=1e-6,cores=8):
     '''Solves Laplace equation along vertices of a surface.
@@ -250,3 +265,23 @@ def surface_to_volume(surf_data, indensity, hippunfold_dir, sub, ses, hemi, spac
         label_nib = nib.Nifti1Image(label_img, ap_nib.affine, ap_nib.header)
         nib.save(label_nib, save_out_name)
     return label_img
+
+
+def bound_cdata(cdata,cutoff=0.05):
+    '''Returns upper and lower X percent interval values
+    Input
+      cdata: list of values
+      cutoff: upper and lower percentile'''
+    if not cutoff:
+        return False
+    shp = cdata.shape
+    c = cdata.flatten()
+    l = np.sort(c[~np.isnan(c)])
+    try:
+        bounds = l[[int(cutoff*len(l)), int((1-cutoff)*len(l))]]
+        cdata[cdata<bounds[0]] = bounds[0]
+        cdata[cdata>bounds[1]] = bounds[1]
+    except:
+        print('cdata all NaN')
+    return np.reshape(cdata, shp)
+

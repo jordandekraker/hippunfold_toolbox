@@ -45,6 +45,7 @@ setuptools.setup(
         "pandas>=0.23",
         "scipy>=1.3.3",
         "matplotlib>=2.0.0",
+        "pygeodesic>=0.1.8",
     ],
     extras_require={"dev": ["gitpython", "hcp-utils", "mypy", "plotly", "pytest"]},
     include_package_data=True,
