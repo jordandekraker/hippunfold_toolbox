@@ -51,7 +51,6 @@ def profile_align(P,V,F, patchdist=None, maxroll=5):
     pads profiles by maxroll, then rolls them by +/- maxroll until maximum overlap with the patch average is achieved'''
     P = np.pad(P,((0,0),(maxroll,maxroll)),mode='edge')
     Paligned = np.ones(P.shape)*np.nan
-    geoalg = geodesic.PyGeodesicAlgorithmExact(V, F)
 
     if patchdist==None:
         p_mean = np.nanmean(P,axis=0)
@@ -66,6 +65,7 @@ def profile_align(P,V,F, patchdist=None, maxroll=5):
         for v in range(len(V)):
             Paligned[v,:] = np.roll(P[v,:],-rolls[Rbest[v]])
     else:
+        geoalg = geodesic.PyGeodesicAlgorithmExact(V, F)
         for v in range(len(V)):
             # use a patch around the given vertex as the averaged reference
             dist,_ = geoalg.geodesicDistances(np.array([v]), None)
