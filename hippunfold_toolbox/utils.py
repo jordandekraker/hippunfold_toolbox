@@ -62,7 +62,7 @@ def profile_align(P,V,F, patchdist=None, maxroll=5):
             R[:,o] = np.corrcoef(p_mean_off,P)[1:,0]
         Rbest = np.argmax(R,axis=1)
         # keep only the best roll
-        for v in range(len(V)):
+        for v in range(P.shape[0]):
             Paligned[v,:] = np.roll(P[v,:],-rolls[Rbest[v]])
     else:
         geoalg = geodesic.PyGeodesicAlgorithmExact(V, F)
