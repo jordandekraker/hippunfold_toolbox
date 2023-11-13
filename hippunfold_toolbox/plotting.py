@@ -21,7 +21,7 @@ def surfplot_canonical_foldunfold(cdata, hemis=['L','R'], labels=['hipp','dentat
     Plots canonical folded and unfolded surfaces (hipp/dentate; folded/unfolded). This is good for cdata that isn't specific to one subject (eg. maybe it has been averaged across many subjects).
     
     cdata: array with the shape Vx2xF, where V is the number of vertices (including DG unless specified), 2 is the number of hemispheres (unless specified), and F is the number of rows/features
-    kwargs: see hhttps://brainspace.readthedocs.io/en/latest/generated/brainspace.plotting.surface_plotting.plot_surf.html#brainspace.plotting.surface_plotting.plot_surf
+    kwargs: see https://brainspace.readthedocs.io/en/latest/generated/brainspace.plotting.surface_plotting.plot_surf.html#brainspace.plotting.surface_plotting.plot_surf
     '''
     # load surfaces
     rh = read_surface(f'{resourcesdir}/canonical_surfs/tpl-avg_space-canonical_den-{den}_label-hipp_midthickness.surf.gii')
@@ -162,8 +162,8 @@ def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, features, hemis=['L','R'],
     cmaps[:] = cmap
     for f,feature in enumerate(features):
         if feature=='subfields':
-            cdata[ind[1],:,f] = np.nanmax(cdata)+1
-            cmaps[f,:] = ('tab10')
+            cdata[ind[1],:,f] = np.nanmax(cdata[ind[0],:,f])+1
+            cmaps[f,:] = ('jet')
         else:
             if tighten_cwindow>0: 
                 cdata[:,:,f] = utils.bound_cdata(cdata[:,:,f])
