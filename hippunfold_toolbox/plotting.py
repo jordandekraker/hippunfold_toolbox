@@ -84,7 +84,7 @@ def surfplot_canonical_foldunfold(cdata, hemis=['L','R'], labels=['hipp','dentat
     return p
 
 
-def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, features, hemis=['L','R'], labels=['hipp','dentate'], flipLcurv = True, unfoldAPrescale=False, den='0p5mm', modality='T1w', tighten_cwindow=True, rotate=True,  resourcesdir=resourcesdir, size=[350,230], cmap='viridis', **qwargs):
+def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, features, hemis=['L','R'], labels=['hipp','dentate'], flipRcurv = True, unfoldAPrescale=False, den='0p5mm', modality='T1w', tighten_cwindow=True, rotate=True,  resourcesdir=resourcesdir, size=[350,230], cmap='viridis', **qwargs):
     '''
     Plots subject-specific folded and unfolded surfaces (hipp/dentate; folded/unfolded). 
     
@@ -152,7 +152,7 @@ def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, features, hemis=['L','R'],
                 fn3 = glob.glob(fn2)
                 try:
                     cdata[ind[l],h,f] = nib.load(fn3[0]).darrays[0].data
-                    if flipLcurv and feature == 'curvature' and hemi=='R':
+                    if flipRcurv and feature == 'curvature' and hemi=='L':
                         cdata[ind[l],h,f] = -cdata[ind[l],h,f]
                 except:
                     print(fn2 + ' failed')
