@@ -84,7 +84,7 @@ def surfplot_canonical_foldunfold(cdata, hemis=['L','R'], labels=['hipp','dentat
     return p
 
 
-def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, features, hemis=['L','R'], labels=['hipp','dentate'], unfoldAPrescale=False, den='0p5mm', modality='T1w', tighten_cwindow=True, rotate=True,  resourcesdir=resourcesdir, size=[350,230], cmap='viridis', **qwargs):
+def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, features, hemis=['L','R'], labels=['hipp','dentate'], flipLcurv = True, unfoldAPrescale=False, den='0p5mm', modality='T1w', tighten_cwindow=True, rotate=True,  resourcesdir=resourcesdir, size=[350,230], cmap='viridis', **qwargs):
     '''
     Plots subject-specific folded and unfolded surfaces (hipp/dentate; folded/unfolded). 
     
@@ -107,23 +107,26 @@ def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, features, hemis=['L','R'],
         for space in [modality,'unfold']:
             for label in labels:
                 fn1 = f'{hippunfold_dir}/sub-{sub}/{ses}/surf/sub-{sub}{uses}_hemi-{hemi}_space-{space}_den-{den}_label-{label}_midthickness.surf.gii'
-                try:
+                if glob.glob(fn1):
                     s = read_surface(fn1)
-                    if label=='hipp':
-                        nptsHipp = s.n_points
-                    if space=='unfold':
-                        s.Points = s.Points[:,[1,0,2]] # reorient unfold
-                        if unfoldAPrescale: s.Points = utils.area_rescale(s.Points,den,label,APaxis=1)
-                        if label=='dentate':
-                            s.Points = s.Points + [22,0,0] # translate DG
-                    if label=='dentate': # concatenate dentate to hipp
-                        s = mc.build_polydata(np.concatenate((oldsurf.Points.copy(), s.Points.copy())),
-                                        cells=np.concatenate((oldsurf.GetCells2D().copy(), s.GetCells2D().copy()+nptsHipp)))
-                        if hemi=="L" and space=='unfold': # flip L unfolded
-                            s.Points[:,0] = -s.Points[:,0]
-                    oldsurf = s
-                except:
-                    print(fn1 + ' failed')
+                else:
+                    print(fn1 + ' not sound, using generic')
+                    s = read_surface(f'{resourcesdir}/canonical_surfs/tpl-avg_space-unfold_den-{den}_label-{label}_midthickness.surf.gii')
+                    if space != 'unfold': s.Points = np.ones(s.Points.shape)*np.nan
+                if label=='hipp':
+                    nptsHipp = s.n_points
+                if space=='unfold':
+                    s.Points = s.Points[:,[1,0,2]] # reorient unfold
+                    if unfoldAPrescale: s.Points = utils.area_rescale(s.Points,den,label,APaxis=1)
+                    if label=='dentate':
+                        s.Points = s.Points + [22,0,0] # translate DG
+                if hemi=="L" and space=='unfold': # flip L unfolded
+                    s.Points[:,0] = -s.Points[:,0]
+                if label=='dentate': # concatenate dentate to hipp (hipp should be immediately prior)
+                    s = mc.build_polydata(np.concatenate((oldsurf.Points.copy(), s.Points.copy())),
+                                    cells=np.concatenate((oldsurf.GetCells2D().copy(), s.GetCells2D().copy()+nptsHipp)))
+                oldsurf = s
+
             surf.append(s)
     npts = len(surf[0].Points)
 
@@ -148,7 +151,9 @@ def surfplot_sub_foldunfold(hippunfold_dir, sub, ses, features, hemis=['L','R'],
                 fn2 = f'{hippunfold_dir}/sub-{sub}/{ses}/surf/sub-{sub}{uses}_hemi-{hemi}_space-{modality}_den-{den}_label-{label}_*{feature}*.{type}.gii'
                 fn3 = glob.glob(fn2)
                 try:
-                    cdata[ind[l],h,f]= nib.load(fn3[0]).darrays[0].data
+                    cdata[ind[l],h,f] = nib.load(fn3[0]).darrays[0].data
+                    if flipLcurv and feature == 'curvature' and hemi=='R':
+                        cdata[ind[l],h,f] = -cdata[ind[l],h,f]
                 except:
                     print(fn2 + ' failed')
 
