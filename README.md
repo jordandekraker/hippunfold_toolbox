@@ -1,6 +1,6 @@
 ## Useful Matlab & Python tools for plotting and manipulating outputs from [HippUnfold](https://github.com/khanlab/hippunfold).
 
-***NEW*** This tool has now been updates and relocated to [HippoMaps](https://github.com/MICA-MNI/hippomaps)
+***NEW*** This tool has now been updated and relocated to [HippoMaps](https://github.com/MICA-MNI/hippomaps)
 
 In-depth tools are offered in Python, but there are also useful Matlab examples and functions.
 
